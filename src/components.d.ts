@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppLayout: typeof import('./components/layout/AppLayout.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
+    NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
@@ -16,9 +17,7 @@ declare module 'vue' {
     NDatePicker: typeof import('naive-ui')['NDatePicker']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
     NDivider: typeof import('naive-ui')['NDivider']
-    NEmpty: typeof import('naive-ui')['NEmpty']
-    NGrid: typeof import('naive-ui')['NGrid']
-    NGridItem: typeof import('naive-ui')['NGridItem']
+    NGlobalStyle: typeof import('naive-ui')['NGlobalStyle']
     NIcon: typeof import('naive-ui')['NIcon']
     NInput: typeof import('naive-ui')['NInput']
     NInputNumber: typeof import('naive-ui')['NInputNumber']
@@ -32,7 +31,6 @@ declare module 'vue' {
     NRadio: typeof import('naive-ui')['NRadio']
     NRadioGroup: typeof import('naive-ui')['NRadioGroup']
     NSelect: typeof import('naive-ui')['NSelect']
-    NSpace: typeof import('naive-ui')['NSpace']
     NStatistic: typeof import('naive-ui')['NStatistic']
     NTag: typeof import('naive-ui')['NTag']
     NTooltip: typeof import('naive-ui')['NTooltip']
@@ -40,6 +38,8 @@ declare module 'vue' {
     Panel: typeof import('./components/common/Panel.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SondaTema: typeof import('./components/layout/SondaTema.vue')['default']
     StatCard: typeof import('./components/common/StatCard.vue')['default']
+    ThemeBridge: typeof import('./components/layout/ThemeBridge.vue')['default']
   }
 }

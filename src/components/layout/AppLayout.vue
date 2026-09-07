@@ -1,5 +1,5 @@
 <template>
-  <n-layout has-sider class="h-full">
+  <n-layout has-sider class="h-screen w-full" style="overflow: hidden;">
     <n-layout-sider
       bordered
       collapse-mode="width"
@@ -10,12 +10,12 @@
     >
       <div class="flex flex-col h-full">
         <div class="px-4 py-5 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-green-600 text-white grid place-items-center text-lg font-bold shrink-0">
-            T
+          <div class="w-9 h-9 rounded-xl bg-[#00A86B] text-white grid place-items-center shrink-0">
+            <n-icon :component="CartOutline" :size="20" />
           </div>
           <div v-if="!collapsed" class="leading-tight">
-            <div class="font-bold text-green-400">SuperMercado</div>
-            <div class="text-xs text-gray-500">Thaliana · Pedidos</div>
+            <div class="font-bold text-[#FFD700]">Thaliana</div>
+            <div class="text-xs text-gray-500">SuperMercado · Pedidos</div>
           </div>
         </div>
         <n-menu
@@ -25,17 +25,24 @@
           :collapsed="collapsed"
           @update:value="onSelect"
         />
+        <div class="mt-auto px-4 py-3 flex items-center gap-2.5 border-t border-white/10">
+          <n-avatar round size="small" color="#FFD700" class="text-slate-900 !text-xs font-bold shrink-0">B</n-avatar>
+          <div v-if="!collapsed" class="min-w-0 flex-1 leading-tight">
+            <div class="text-xs font-bold text-[#F5F5DC] truncate">Usuario</div>
+            <div class="text-[10px] text-gray-500">Administrador</div>
+          </div>
+          <n-button quaternary circle size="small" class="hidden sm:inline-flex">
+            <template #icon><n-icon :component="ChevronDownOutline" /></template>
+          </n-button>
+        </div>
       </div>
     </n-layout-sider>
 
-    <n-layout>
-      <n-layout-header bordered class="hidden md:flex items-center justify-end px-6 h-14 gap-3 !bg-slate-950/70">
-        <span class="text-xs flex items-center gap-2 text-gray-400">
-          <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          Recepción de pedidos: lunes a sábado
-        </span>
+    <n-layout style="overflow: hidden;">
+      <n-layout-header bordered class="hidden md:flex items-center justify-between px-6 h-14 shrink-0 gap-3 !bg-slate-950/70">
+        <span class="text-sm font-bold text-[#F5F5DC]">Panel de administración de pedidos</span>
       </n-layout-header>
-      <n-layout-content content-style="padding: 24px;">
+      <n-layout-content content-style="padding: 24px;" style="overflow: auto;">
         <router-view />
       </n-layout-content>
     </n-layout>
@@ -48,7 +55,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NIcon } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import {
-  Grid, Storefront, People, Cube, GitNetwork, Receipt, Wallet, Layers
+  Grid, Storefront, People, Cube, Receipt, Wallet, ChevronDownOutline, CartOutline
 } from '@vicons/ionicons5'
 
 const route = useRoute()
@@ -59,13 +66,11 @@ const renderIcon = (icon: Component) => () => h(NIcon, null, { default: () => h(
 
 const menuOptions: MenuOption[] = [
   { label: 'Dashboard', key: '/dashboard', icon: renderIcon(Grid) },
-  { label: 'Empresas', key: '/empresas', icon: renderIcon(Storefront) },
-  { label: 'Vendedores', key: '/vendedores', icon: renderIcon(People) },
-  { label: 'Marcas', key: '/marcas', icon: renderIcon(GitNetwork) },
-  { label: 'Líneas de producto', key: '/lineas', icon: renderIcon(Layers) },
-  { label: 'Productos', key: '/productos', icon: renderIcon(Cube) },
   { label: 'Pedidos', key: '/pedidos', icon: renderIcon(Receipt) },
-  { label: 'Egresos', key: '/egresos', icon: renderIcon(Wallet) }
+  { label: 'Egresos', key: '/egresos', icon: renderIcon(Wallet) },
+  { label: 'Proveedores', key: '/proveedores', icon: renderIcon(Storefront) },
+  { label: 'Vendedores', key: '/vendedores', icon: renderIcon(People) },
+  { label: 'Productos', key: '/productos', icon: renderIcon(Cube) }
 ]
 
 const activeKey = computed(() => {

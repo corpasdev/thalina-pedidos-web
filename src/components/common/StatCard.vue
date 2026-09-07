@@ -6,7 +6,7 @@
         <slot name="icon" />
       </span>
     </div>
-    <div class="text-2xl font-bold text-white truncate">{{ value }}</div>
+    <div class="text-2xl font-bold text-[#F5F5DC] truncate">{{ value }}</div>
     <div v-if="hint" class="text-xs text-gray-500">{{ hint }}</div>
   </div>
 </template>
@@ -17,7 +17,7 @@ import { computed } from 'vue'
 const props = withDefaults(defineProps<{ label: string; value: string; hint?: string; accent?: 'green' | 'sky' | 'amber' | 'rose' | 'violet' }>(), { accent: 'green' })
 
 const ACCENTS: Record<string, string> = {
-  green: 'from-emerald-500/20 text-emerald-400',
+  green: 'from-[#00A86B]/30 text-[#2ED5A0]',
   sky: 'from-sky-500/20 text-sky-400',
   amber: 'from-amber-500/20 text-amber-400',
   rose: 'from-rose-500/20 text-rose-400',
