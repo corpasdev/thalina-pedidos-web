@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-full flex items-center justify-center p-4 md:p-8">
-    <div class="w-full max-w-[1020px] rounded-2xl overflow-hidden border border-slate-800 bg-[#1f2937] shadow-2xl">
+  <div class="flex justify-center p-4 md:p-8">
+    <div class="w-full max-w-[1020px] rounded-2xl overflow-hidden border border-slate-800 bg-[#1f2937] shadow-2xl flex flex-col md:min-h-[calc(100dvh-168px)]">
       <!-- Header -->
-      <header class="flex items-center justify-end px-6 md:px-9 py-4 bg-slate-900/40">
+      <header class="flex items-center justify-end px-6 md:px-9 py-4 bg-slate-900/40 shrink-0">
         <router-link class="hidden sm:block shrink-0" to="/pedidos/nuevo">
           <n-button type="warning" round size="large" class="font-semibold !px-5">
             Registrar pedido
@@ -11,9 +11,9 @@
       </header>
 
       <!-- Body: 3 zonas principales -->
-      <div class="grid grid-cols-1 md:grid-cols-[55%_45%] divide-y md:divide-y-0 md:divide-x divide-slate-800/70">
+      <div class="grid grid-cols-1 md:grid-cols-[55%_45%] divide-y md:divide-y-0 md:divide-x divide-slate-800/70 md:flex-1 md:min-h-0 md:grid-rows-1">
         <!-- Columna izquierda: control + calendario -->
-        <section class="flex flex-col p-6 md:p-8">
+        <section class="flex flex-col p-6 md:p-8 min-h-0">
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-lg bg-[#00A86B]/15 text-[#2ED5A0] grid place-items-center shrink-0">
               <n-icon :component="StorefrontOutline" />
@@ -24,7 +24,7 @@
             </div>
           </div>
 
-          <div class="mt-6 h-[80%] min-h-0 flex flex-col">
+          <div class="mt-6 flex-1 min-h-0 flex flex-col">
             <div class="flex items-center justify-between mb-3 shrink-0">
               <div class="flex items-center gap-2 text-sm font-semibold text-[#F5F5DC]">
                 <n-icon :component="CalendarOutline" />
@@ -80,9 +80,10 @@
 
         <!-- Columna derecha: panel de detalle -->
         <section
-          class="relative overflow-hidden flex flex-col gap-5 p-6 md:p-8 text-[#F5F5DC]"
+          class="relative overflow-hidden flex flex-col gap-5 p-6 md:p-8 text-[#F5F5DC] min-h-0"
           style="background: linear-gradient(165deg, #0e4632 0%, #072b1e 100%);"
         >
+          <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-5">
           <!-- EGRESOS HOY: contenido de alto impacto -->
           <div class="relative rounded-2xl border border-[#FFD700]/30 bg-[#FFD700]/[0.07] p-4 overflow-hidden">
             <div class="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full border-[12px] border-[#FFD700]/10" />
@@ -137,6 +138,8 @@
                 <span class="font-bold tabular-nums">Saldo {{ formatMoney(p.saldo) }}</span>
               </div>
             </div>
+          </div>
+
           </div>
 
           <div class="pointer-events-none absolute -bottom-12 -right-12 w-48 h-48 rounded-full border-[14px] border-[#FFD700]/10" />

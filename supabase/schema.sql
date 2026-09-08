@@ -3,95 +3,95 @@
 -- Ejecutar en SQL Editor del proyecto (con la Data API expuesta: public).
 -- =====================================================================
 
-create table if not exists public.empresas (
+create table if not exists public.companies (
   id text primary key,
-  nombre text not null,
-  tipo text not null default 'Propia',
-  marcas jsonb not null default '[]'::jsonb,
-  dias_llegada jsonb not null default '[]'::jsonb,
-  creado_en timestamptz not null default now()
+  name text not null,
+  type text not null default 'Propia',
+  brands jsonb not null default '[]'::jsonb,
+  arrival_days jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.lineas (
+create table if not exists public.product_lines (
   id text primary key,
-  nombre text not null,
-  empresa_id text not null references public.empresas(id),
-  categoria text not null,
-  descripcion text,
-  creado_en timestamptz not null default now()
+  name text not null,
+  company_id text not null references public.companies(id),
+  category text not null,
+  description text,
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.marcas (
+create table if not exists public.brands (
   id text primary key,
-  nombre text not null,
-  empresa_id text not null references public.empresas(id),
-  creado_en timestamptz not null default now()
+  name text not null,
+  company_id text not null references public.companies(id),
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.vendedores (
+create table if not exists public.sellers (
   id text primary key,
-  nombre text not null,
-  empresa_id text not null references public.empresas(id),
-  linea_id text references public.lineas(id),
-  telefono text,
-  creado_en timestamptz not null default now()
+  name text not null,
+  company_id text not null references public.companies(id),
+  product_line_id text references public.product_lines(id),
+  phone text,
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.productos (
+create table if not exists public.products (
   id text primary key,
-  nombre text not null,
+  name text not null,
   sku text not null,
-  empresa_id text not null references public.empresas(id),
-  marca_id text references public.marcas(id),
-  linea_id text references public.lineas(id),
-  unidad text,
-  precio_compra numeric,
-  precio_venta numeric,
+  company_id text not null references public.companies(id),
+  brand_id text references public.brands(id),
+  product_line_id text references public.product_lines(id),
+  unit text,
+  purchase_price numeric,
+  sale_price numeric,
   stock numeric,
-  stock_minimo numeric,
-  creado_en timestamptz not null default now()
+  min_stock numeric,
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.pedidos (
+create table if not exists public.orders (
   id text primary key,
-  numero text not null,
-  empresa_id text not null references public.empresas(id),
-  vendedor_id text not null references public.vendedores(id),
-  fecha_pedido timestamptz not null,
-  fecha_entrega timestamptz,
-  estado text not null default 'Pendiente',
-  notas text,
-  lineas jsonb not null default '[]'::jsonb,
-  creado_en timestamptz not null default now()
+  order_number text not null,
+  company_id text not null references public.companies(id),
+  seller_id text not null references public.sellers(id),
+  order_date timestamptz not null,
+  delivery_date timestamptz,
+  status text not null default 'Pendiente',
+  notes text,
+  lines jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.egresos (
+create table if not exists public.expenses (
   id text primary key,
-  pedido_id text not null references public.pedidos(id) on delete cascade,
-  fecha timestamptz not null,
-  monto numeric not null,
-  forma_pago text not null,
-  descripcion text,
-  creado_en timestamptz not null default now()
+  order_id text not null references public.orders(id) on delete cascade,
+  date timestamptz not null,
+  amount numeric not null,
+  payment_method text not null,
+  description text,
+  created_at timestamptz not null default now()
 );
 
-create table if not exists public.duplicados (
+create table if not exists public.duplicates (
   id text primary key,
-  pedido_id text not null references public.pedidos(id) on delete cascade,
-  numero text not null,
-  fecha timestamptz not null,
-  coincidencias jsonb not null default '[]'::jsonb,
-  confirmado boolean not null default false
+  order_id text not null references public.orders(id) on delete cascade,
+  order_number text not null,
+  date timestamptz not null,
+  matches jsonb not null default '[]'::jsonb,
+  confirmed boolean not null default false
 );
 
-create table if not exists public.borradores (
+create table if not exists public.drafts (
   id text primary key,
-  empresa_id text not null references public.empresas(id),
-  vendedor_id text references public.vendedores(id),
-  fecha_entrega timestamptz,
-  notas text,
-  lineas jsonb not null default '[]'::jsonb,
-  actualizado_en timestamptz not null default now()
+  company_id text not null references public.companies(id),
+  seller_id text references public.sellers(id),
+  delivery_date timestamptz,
+  notes text,
+  lines jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
 );
 
 -- =====================================================================
@@ -100,21 +100,21 @@ create table if not exists public.borradores (
 -- policies por dueño. Nunca expongas la service_role key en el frontend.
 -- =====================================================================
 
-alter table public.empresas    enable row level security;
-alter table public.lineas      enable row level security;
-alter table public.marcas      enable row level security;
-alter table public.vendedores  enable row level security;
-alter table public.productos   enable row level security;
-alter table public.pedidos     enable row level security;
-alter table public.egresos     enable row level security;
-alter table public.duplicados  enable row level security;
-alter table public.borradores  enable row level security;
+alter table public.companies      enable row level security;
+alter table public.product_lines  enable row level security;
+alter table public.brands         enable row level security;
+alter table public.sellers        enable row level security;
+alter table public.products       enable row level security;
+alter table public.orders         enable row level security;
+alter table public.expenses       enable row level security;
+alter table public.duplicates     enable row level security;
+alter table public.drafts         enable row level security;
 
 do $$
 declare
   t text;
 begin
-  foreach t in array array['empresas','lineas','marcas','vendedores','productos','pedidos','egresos','duplicados','borradores']
+  foreach t in array array['companies','product_lines','brands','sellers','products','orders','expenses','duplicates','drafts']
   loop
     execute format(
       'create policy "todas las operaciones demo" on public.%I for all to anon, authenticated using (true) with check (true);',
@@ -124,6 +124,6 @@ begin
 end $$;
 
 -- Acceso de rol a las tablas (la Data API necesita granos por tabla)
-grant select, insert, update, delete on public.empresas, public.lineas, public.marcas,
-  public.vendedores, public.productos, public.pedidos, public.egresos,
-  public.duplicados, public.borradores to anon, authenticated;
+grant select, insert, update, delete on public.companies, public.product_lines, public.brands,
+  public.sellers, public.products, public.orders, public.expenses,
+  public.duplicates, public.drafts to anon, authenticated;

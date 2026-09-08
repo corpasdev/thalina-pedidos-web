@@ -30,167 +30,167 @@ const str = (v: unknown): string | undefined =>
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
 export const EMPRESAS_COL: DbCollection<Empresa> = {
-  table: 'empresas',
-  toRow: (e) => ({ id: e.id, nombre: e.nombre, tipo: e.tipo, marcas: e.marcas, dias_llegada: e.diasLlegada }),
+  table: 'companies',
+  toRow: (e) => ({ id: e.id, name: e.nombre, type: e.tipo, brands: e.marcas, arrival_days: e.diasLlegada }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    nombre: str(r.nombre) ?? '',
-    tipo: (str(r.tipo) as TipoEmpresa) ?? 'Propia',
-    marcas: arr(r.marcas) as string[],
-    diasLlegada: arr(r.dias_llegada) as DiaSemana[]
+    nombre: str(r.name) ?? '',
+    tipo: (str(r.type) as TipoEmpresa) ?? 'Propia',
+    marcas: arr(r.brands) as string[],
+    diasLlegada: arr(r.arrival_days) as DiaSemana[]
   })
 }
 
 export const LINEAS_COL: DbCollection<Linea> = {
-  table: 'lineas',
-  toRow: (l) => ({ id: l.id, nombre: l.nombre, empresa_id: l.empresaId, categoria: l.categoria, descripcion: l.descripcion }),
+  table: 'product_lines',
+  toRow: (l) => ({ id: l.id, name: l.nombre, company_id: l.empresaId, category: l.categoria, description: l.descripcion }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    nombre: str(r.nombre) ?? '',
-    empresaId: str(r.empresa_id) ?? '',
-    categoria: (str(r.categoria) as Categoria) ?? 'Otro',
-    descripcion: str(r.descripcion)
+    nombre: str(r.name) ?? '',
+    empresaId: str(r.company_id) ?? '',
+    categoria: (str(r.category) as Categoria) ?? 'Otro',
+    descripcion: str(r.description)
   })
 }
 
 export const VENDEDORES_COL: DbCollection<Vendedor> = {
-  table: 'vendedores',
-  toRow: (v) => ({ id: v.id, nombre: v.nombre, empresa_id: v.empresaId, linea_id: v.lineaId ?? null, telefono: v.telefono ?? null }),
+  table: 'sellers',
+  toRow: (v) => ({ id: v.id, name: v.nombre, company_id: v.empresaId, product_line_id: v.lineaId ?? null, phone: v.telefono ?? null }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    nombre: str(r.nombre) ?? '',
-    empresaId: str(r.empresa_id) ?? '',
-    lineaId: str(r.linea_id),
-    telefono: str(r.telefono)
+    nombre: str(r.name) ?? '',
+    empresaId: str(r.company_id) ?? '',
+    lineaId: str(r.product_line_id),
+    telefono: str(r.phone)
   })
 }
 
 export const MARCAS_COL: DbCollection<Marca> = {
-  table: 'marcas',
-  toRow: (m) => ({ id: m.id, nombre: m.nombre, empresa_id: m.empresaId }),
+  table: 'brands',
+  toRow: (m) => ({ id: m.id, name: m.nombre, company_id: m.empresaId }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    nombre: str(r.nombre) ?? '',
-    empresaId: str(r.empresa_id) ?? ''
+    nombre: str(r.name) ?? '',
+    empresaId: str(r.company_id) ?? ''
   })
 }
 
 export const PRODUCTOS_COL: DbCollection<Producto> = {
-  table: 'productos',
+  table: 'products',
   toRow: (p) => ({
     id: p.id,
-    nombre: p.nombre,
+    name: p.nombre,
     sku: p.sku,
-    empresa_id: p.empresaId,
-    marca_id: p.marcaId ?? null,
-    linea_id: p.lineaId ?? null,
-    unidad: p.unidad ?? null,
-    precio_compra: p.precioCompra ?? null,
-    precio_venta: p.precioVenta ?? null,
+    company_id: p.empresaId,
+    brand_id: p.marcaId ?? null,
+    product_line_id: p.lineaId ?? null,
+    unit: p.unidad ?? null,
+    purchase_price: p.precioCompra ?? null,
+    sale_price: p.precioVenta ?? null,
     stock: p.stock ?? null,
-    stock_minimo: p.stockMinimo ?? null
+    min_stock: p.stockMinimo ?? null
   }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    nombre: str(r.nombre) ?? '',
+    nombre: str(r.name) ?? '',
     sku: str(r.sku) ?? '',
-    empresaId: str(r.empresa_id) ?? '',
-    marcaId: str(r.marca_id),
-    lineaId: str(r.linea_id),
-    unidad: str(r.unidad),
-    precioCompra: num(r.precio_compra),
-    precioVenta: num(r.precio_venta),
+    empresaId: str(r.company_id) ?? '',
+    marcaId: str(r.brand_id),
+    lineaId: str(r.product_line_id),
+    unidad: str(r.unit),
+    precioCompra: num(r.purchase_price),
+    precioVenta: num(r.sale_price),
     stock: num(r.stock),
-    stockMinimo: num(r.stock_minimo)
+    stockMinimo: num(r.min_stock)
   })
 }
 
 export const PEDIDOS_COL: DbCollection<Pedido> = {
-  table: 'pedidos',
+  table: 'orders',
   toRow: (p) => ({
     id: p.id,
-    numero: p.numero,
-    empresa_id: p.empresaId,
-    vendedor_id: p.vendedorId,
-    fecha_pedido: p.fechaPedido,
-    fecha_entrega: p.fechaEntrega ?? null,
-    estado: p.estado,
-    notas: p.notas ?? null,
-    lineas: p.lineas,
-    creado_en: p.creadoEn
+    order_number: p.numero,
+    company_id: p.empresaId,
+    seller_id: p.vendedorId,
+    order_date: p.fechaPedido,
+    delivery_date: p.fechaEntrega ?? null,
+    status: p.estado,
+    notes: p.notas ?? null,
+    lines: p.lineas,
+    created_at: p.creadoEn
   }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    numero: str(r.numero) ?? '',
-    empresaId: str(r.empresa_id) ?? '',
-    vendedorId: str(r.vendedor_id) ?? '',
-    fechaPedido: str(r.fecha_pedido) ?? '',
-    fechaEntrega: str(r.fecha_entrega),
-    estado: (str(r.estado) as EstadoPedido) ?? 'Pendiente',
-    notas: str(r.notas),
-    lineas: arr(r.lineas) as LineaPedido[],
-    creadoEn: str(r.creado_en) ?? ''
+    numero: str(r.order_number) ?? '',
+    empresaId: str(r.company_id) ?? '',
+    vendedorId: str(r.seller_id) ?? '',
+    fechaPedido: str(r.order_date) ?? '',
+    fechaEntrega: str(r.delivery_date),
+    estado: (str(r.status) as EstadoPedido) ?? 'Pendiente',
+    notas: str(r.notes),
+    lineas: arr(r.lines) as LineaPedido[],
+    creadoEn: str(r.created_at) ?? ''
   })
 }
 
 export const EGRESOS_COL: DbCollection<Egreso> = {
-  table: 'egresos',
+  table: 'expenses',
   toRow: (e) => ({
     id: e.id,
-    pedido_id: e.pedidoId,
-    fecha: e.fecha,
-    monto: e.monto,
-    forma_pago: e.formaPago,
-    descripcion: e.descripcion ?? null
+    order_id: e.pedidoId,
+    date: e.fecha,
+    amount: e.monto,
+    payment_method: e.formaPago,
+    description: e.descripcion ?? null
   }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    pedidoId: str(r.pedido_id) ?? '',
-    fecha: str(r.fecha) ?? '',
-    monto: num(r.monto) ?? 0,
-    formaPago: (str(r.forma_pago) as FormaPago) ?? 'Contado',
-    descripcion: str(r.descripcion)
+    pedidoId: str(r.order_id) ?? '',
+    fecha: str(r.date) ?? '',
+    monto: num(r.amount) ?? 0,
+    formaPago: (str(r.payment_method) as FormaPago) ?? 'Contado',
+    descripcion: str(r.description)
   })
 }
 
 export const DUPLICADOS_COL: DbCollection<Duplicado> = {
-  table: 'duplicados',
+  table: 'duplicates',
   toRow: (d) => ({
     id: d.id,
-    pedido_id: d.pedidoId,
-    numero: d.numero,
-    fecha: d.fecha,
-    coincidencias: d.coincidencias,
-    confirmado: d.confirmado
+    order_id: d.pedidoId,
+    order_number: d.numero,
+    date: d.fecha,
+    matches: d.coincidencias,
+    confirmed: d.confirmado
   }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    pedidoId: str(r.pedido_id) ?? '',
-    numero: str(r.numero) ?? '',
-    fecha: str(r.fecha) ?? '',
-    coincidencias: arr(r.coincidencias) as Duplicado['coincidencias'],
-    confirmado: Boolean(r.confirmado)
+    pedidoId: str(r.order_id) ?? '',
+    numero: str(r.order_number) ?? '',
+    fecha: str(r.date) ?? '',
+    coincidencias: arr(r.matches) as Duplicado['coincidencias'],
+    confirmado: Boolean(r.confirmed)
   })
 }
 
 export const BORRADORES_COL: DbCollection<BorradorPedido> = {
-  table: 'borradores',
+  table: 'drafts',
   toRow: (b) => ({
     id: b.id,
-    empresa_id: b.empresaId,
-    vendedor_id: b.vendedorId ?? null,
-    fecha_entrega: b.fechaEntrega ?? null,
-    notas: b.notas ?? null,
-    lineas: b.lineas,
-    actualizado_en: b.actualizadoEn
+    company_id: b.empresaId,
+    seller_id: b.vendedorId ?? null,
+    delivery_date: b.fechaEntrega ?? null,
+    notes: b.notas ?? null,
+    lines: b.lineas,
+    updated_at: b.actualizadoEn
   }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
-    empresaId: str(r.empresa_id) ?? '',
-    vendedorId: str(r.vendedor_id),
-    fechaEntrega: str(r.fecha_entrega),
-    notas: str(r.notas),
-    lineas: arr(r.lineas) as LineaPedido[],
-    actualizadoEn: str(r.actualizado_en) ?? ''
+    empresaId: str(r.company_id) ?? '',
+    vendedorId: str(r.seller_id),
+    fechaEntrega: str(r.delivery_date),
+    notas: str(r.notes),
+    lineas: arr(r.lines) as LineaPedido[],
+    actualizadoEn: str(r.updated_at) ?? ''
   })
 }
