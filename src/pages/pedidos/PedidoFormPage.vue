@@ -33,7 +33,13 @@
       </div>
     </n-card>
 
-    <n-alert v-if="advertencias.length > 0" type="warning" title="Posibles repeticiones">
+    <motion.div
+      v-if="advertencias.length > 0"
+      :initial="{ opacity: 0, y: -6 }"
+      :animate="{ opacity: 1, y: 0 }"
+      :transition="{ duration: 0.22 }"
+    >
+    <n-alert type="warning" title="Posibles repeticiones">
       <div class="flex flex-col gap-1">
         <div v-for="w in advertencias" :key="w.nombre" class="text-sm">
           <b>{{ w.nombre }}</b>
@@ -42,13 +48,21 @@
         </div>
       </div>
     </n-alert>
+  </motion.div>
 
     <n-card title="Líneas del pedido">
       <div class="flex flex-col gap-3">
         <div v-if="lineasDraft.length === 0" class="text-sm text-gray-400">
           Sin productos. Agregue la primera línea.
         </div>
-        <div v-for="l in lineasDraft" :key="l.id" class="flex flex-wrap items-center gap-3">
+        <motion.div
+          v-for="l in lineasDraft"
+          :key="l.id"
+          class="flex flex-wrap items-center gap-3"
+          :initial="{ opacity: 0, y: -8 }"
+          :animate="{ opacity: 1, y: 0 }"
+          :transition="{ duration: 0.2 }"
+        >
           <n-select
             class="flex-[2] min-w-[180px]"
             placeholder="Producto"
@@ -68,7 +82,7 @@
           <n-button quaternary circle size="small" @click="quitarLinea(l.id)">
             <template #icon><n-icon><CloseIcon /></n-icon></template>
           </n-button>
-        </div>
+        </motion.div>
       </div>
       <n-divider />
       <div class="flex items-center justify-between">
@@ -84,6 +98,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, h } from 'vue'
+import { motion } from 'motion-v'
 import { useRouter } from 'vue-router'
 import { Add as AddIcon, Close as CloseIcon } from '@vicons/ionicons5'
 import { useMessage, useDialog } from 'naive-ui'

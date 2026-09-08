@@ -34,7 +34,14 @@
     <n-card title="Líneas del borrador">
       <div class="flex flex-col gap-3">
         <n-empty v-if="lineasDraft.length === 0" description="Sin productos aún. Vaya agregando lo que piensa pedir." size="small" />
-        <div v-for="l in lineasDraft" :key="l.id" class="flex flex-wrap items-center gap-3">
+        <motion.div
+          v-for="l in lineasDraft"
+          :key="l.id"
+          class="flex flex-wrap items-center gap-3"
+          :initial="{ opacity: 0, y: -8 }"
+          :animate="{ opacity: 1, y: 0 }"
+          :transition="{ duration: 0.2 }"
+        >
           <n-select
             class="flex-[2] min-w-[180px]"
             placeholder="Producto"
@@ -54,7 +61,7 @@
           <n-button quaternary circle size="small" @click="quitarLinea(l.id)">
             <template #icon><n-icon><CloseIcon /></n-icon></template>
           </n-button>
-        </div>
+        </motion.div>
       </div>
       <n-divider />
       <div class="flex items-center justify-between">
@@ -70,6 +77,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { motion } from 'motion-v'
 import { useRouter } from 'vue-router'
 import { Add as AddIcon, Close as CloseIcon } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'

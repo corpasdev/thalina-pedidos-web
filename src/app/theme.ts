@@ -1,18 +1,60 @@
 import type { GlobalThemeOverrides } from 'naive-ui'
 
-/** Paleta de marca: dorado, verde esmeralda y crema. */
-export const gold = '#FFD700'
-export const green = '#00A86B'
-export const cream = '#F5F5DC'
+/**
+ * Paleta de marca: dorado, verde esmeralda y crema.
+ * La misma paleta se organiza en una variante clara y una oscura.
+ */
+export const palette = {
+  brand: {
+    gold: '#FFD700',
+    goldSoft: '#FFEFB0',
+    green: '#00A86B',
+    greenHoverDark: '#2ED5A0',
+    greenPressed: '#008A59',
+    cream: '#F5F5DC'
+  },
+  surfaceDark: {
+    page: '#111827',
+    card: '#1f2937',
+    border: '#374151',
+    borderSoft: '#1f2937',
+    sider: '#0b1220',
+    tableHeader: '#1e293b',
+    input: '#111827'
+  },
+  surfaceLight: {
+    page: '#F5F5DC',
+    card: '#ffffff',
+    border: '#e5e7eb',
+    borderSoft: '#f3f4f6',
+    sider: '#ffffff',
+    tableHeader: '#F5F5DC',
+    input: '#ffffff'
+  },
+  textDark: {
+    base: '#F5F5DC',
+    soft: '#E5E7EB',
+    muted: '#9CA3AF'
+  },
+  textLight: {
+    base: '#111827',
+    soft: '#374151',
+    muted: '#6b7280'
+  }
+} as const
+
+export const gold = palette.brand.gold
+export const green = palette.brand.green
+export const cream = palette.brand.cream
 
 export const brand = green
-export const brandDark = '#008A59'
+export const brandDark = palette.brand.greenPressed
 
-/** Personalización del tema oscuro de Naive UI con acento verde esmeralda (marca tienda). */
+/** Tema oscuro de Naive UI con acento verde esmeralda (marca tienda). */
 export const themeOverrides: GlobalThemeOverrides = {
   common: {
     primaryColor: green,
-    primaryColorHover: '#2ED5A0',
+    primaryColorHover: palette.brand.greenHoverDark,
     primaryColorPressed: brandDark,
     primaryColorSuppl: brand,
     infoColor: '#58C0E8',
@@ -20,45 +62,45 @@ export const themeOverrides: GlobalThemeOverrides = {
     warningColor: gold,
     errorColor: '#F87171',
     borderRadius: '10px',
-    bodyColor: '#111827',
-    cardColor: '#1f2937',
-    modalColor: '#1f2937',
-    popoverColor: '#1f2937',
-    tableColor: '#111827',
-    inputColor: '#111827',
-    textColorBase: cream,
-    textColor1: cream,
-    textColor2: '#E5E7EB',
-    textColor3: '#9CA3AF'
+    bodyColor: palette.surfaceDark.page,
+    cardColor: palette.surfaceDark.card,
+    modalColor: palette.surfaceDark.card,
+    popoverColor: palette.surfaceDark.card,
+    tableColor: palette.surfaceDark.page,
+    inputColor: palette.surfaceDark.input,
+    textColorBase: palette.textDark.base,
+    textColor1: palette.textDark.base,
+    textColor2: palette.textDark.soft,
+    textColor3: palette.textDark.muted
   },
   Card: {
-    color: '#1f2937',
-    borderColor: '#374151'
+    color: palette.surfaceDark.card,
+    borderColor: palette.surfaceDark.border
   },
   DataTable: {
-    thColor: '#1e293b',
-    tdColor: '#111827',
-    thTextColor: cream,
-    tdTextColor: '#E5E7EB'
+    thColor: palette.surfaceDark.tableHeader,
+    tdColor: palette.surfaceDark.page,
+    thTextColor: palette.textDark.base,
+    tdTextColor: palette.textDark.soft
   },
   Layout: {
-    siderColor: '#0b1220',
-    headerColor: '#0b1220',
-    color: '#111827'
+    siderColor: palette.surfaceDark.sider,
+    headerColor: palette.surfaceDark.sider,
+    color: palette.surfaceDark.page
   },
   Menu: {
     itemColorActive: green,
     itemColorActiveHover: green,
-    itemTextColorActiveHover: cream,
+    itemTextColorActiveHover: palette.textDark.base,
     itemTextColor: '#D1D5DB',
-    itemTextColorActive: cream
+    itemTextColorActive: palette.textDark.base
   },
   PageHeader: {
-    titleTextColor: cream
+    titleTextColor: palette.textDark.base
   }
 }
 
-/** Variante clara de la misma paleta (fondo crema) para modo 'light' / 'system'. */
+/** Variante clara de la misma paleta: fondos crema/blanco con texto grafito. */
 export const themeOverridesLight: GlobalThemeOverrides = {
   common: {
     primaryColor: green,
@@ -70,40 +112,40 @@ export const themeOverridesLight: GlobalThemeOverrides = {
     warningColor: gold,
     errorColor: '#DC2626',
     borderRadius: '10px',
-    bodyColor: cream,
-    cardColor: '#ffffff',
-    modalColor: '#ffffff',
-    popoverColor: '#ffffff',
-    tableColor: '#ffffff',
-    inputColor: '#ffffff',
-    textColorBase: '#1f2937',
-    textColor1: '#111827',
-    textColor2: '#374151',
-    textColor3: '#6b7280'
+    bodyColor: palette.surfaceLight.page,
+    cardColor: palette.surfaceLight.card,
+    modalColor: palette.surfaceLight.card,
+    popoverColor: palette.surfaceLight.card,
+    tableColor: palette.surfaceLight.card,
+    inputColor: palette.surfaceLight.input,
+    textColorBase: palette.textLight.base,
+    textColor1: palette.textLight.base,
+    textColor2: palette.textLight.soft,
+    textColor3: palette.textLight.muted
   },
   Card: {
-    color: '#ffffff',
-    borderColor: '#e5e7eb'
+    color: palette.surfaceLight.card,
+    borderColor: palette.surfaceLight.border
   },
   DataTable: {
-    thColor: cream,
-    tdColor: '#ffffff',
-    thTextColor: '#111827',
-    tdTextColor: '#1f2937'
+    thColor: palette.surfaceLight.tableHeader,
+    tdColor: palette.surfaceLight.card,
+    thTextColor: palette.textLight.base,
+    tdTextColor: palette.textLight.soft
   },
   Layout: {
-    siderColor: '#ffffff',
-    headerColor: '#ffffff',
-    color: cream
+    siderColor: palette.surfaceLight.sider,
+    headerColor: palette.surfaceLight.sider,
+    color: palette.surfaceLight.page
   },
   Menu: {
     itemColorActive: green,
     itemColorActiveHover: green,
     itemTextColorActiveHover: '#ffffff',
-    itemTextColor: '#374151',
+    itemTextColor: palette.textLight.soft,
     itemTextColorActive: '#ffffff'
   },
   PageHeader: {
-    titleTextColor: '#111827'
+    titleTextColor: palette.textLight.base
   }
 }
