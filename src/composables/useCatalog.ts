@@ -1,4 +1,4 @@
-import { useEmpresaStore, useLineaStore, useVendedorStore, useMarcaStore, useProductoStore, usePedidoStore, useEgresoStore } from '@/data/stores'
+import { useEmpresaStore, useLineaStore, useVendedorStore, useMarcaStore, useProductoStore, usePedidoStore, useEgresoStore, useBorradorStore } from '@/data/stores'
 
 /** Acceso centralizado a los repositorios por capa de presentación. */
 export function useCatalog() {
@@ -9,6 +9,7 @@ export function useCatalog() {
     marcas: useMarcaStore(),
     productos: useProductoStore(),
     pedidos: usePedidoStore(),
-    egresos: useEgresoStore()
+    egresos: useEgresoStore(),
+    borradores: useBorradorStore()
   }
 }

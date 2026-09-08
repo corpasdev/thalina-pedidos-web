@@ -1,9 +1,7 @@
-import { useEmpresaStore, useLineaStore, useVendedorStore, useMarcaStore, useProductoStore, usePedidoStore, useEgresoStore } from './stores'
-import type { Empresa, Linea, Marca, Vendedor, Producto, Pedido, Egreso } from '@/domain/models'
+import { useEmpresaStore, useLineaStore, useVendedorStore, useMarcaStore, useProductoStore, usePedidoStore, useEgresoStore, useBorradorStore } from './stores'
+import type { Empresa, Linea, Marca, Vendedor, Producto, Pedido, Egreso, BorradorPedido } from '@/domain/models'
 
-const BASE_KEY = 'thaliana:seed_base'
-
-export function seedDemoData() {
+export async function seedDemoData() {
   const hoy = new Date()
   const hoyKey = hoy.toDateString()
   const iso = (h: number, m = 0) => {
@@ -12,8 +10,11 @@ export function seedDemoData() {
     return d.toISOString()
   }
 
-  // Catálogo base: solo la primera vez
-  if (!localStorage.getItem(BASE_KEY)) {
+  // Catálogo base: se siembra si falta alguna tabla base (idempotente por upsert).
+  // El orden importa (FK): empresas → líneas/marcas → vendedores → productos.
+  const empresaStore = useEmpresaStore()
+  const productoStore = useProductoStore()
+  if (empresaStore.items.length === 0 || productoStore.items.length === 0) {
     const empresas: Empresa[] = [
       { id: 'emp_centro', nombre: 'Thaliana Centro', tipo: 'Propia', marcas: [], diasLlegada: ['Lunes', 'Miércoles', 'Viernes'] },
       { id: 'emp_norte', nombre: 'Super Al Día Norte', tipo: 'Franquicia', marcas: ['Nestlé', 'Alpina'], diasLlegada: ['Martes', 'Jueves', 'Sábado'] },
@@ -46,15 +47,14 @@ export function seedDemoData() {
       { id: 'prod_5', nombre: 'Jabón cremoso Aroma 3und', sku: 'jabon-3', empresaId: 'emp_norte', marcaId: 'mar_1', lineaId: 'lin_3', unidad: 'pack', precioCompra: 8800, precioVenta: 11500, stock: 22, stockMinimo: 6 }
     ]
 
-    useEmpresaStore().replace(empresas)
-    useLineaStore().replace(lineas)
-    useMarcaStore().replace(marcas)
-    useVendedorStore().replace(vendedores)
-    useProductoStore().replace(productos)
-    localStorage.setItem(BASE_KEY, '1')
+    await empresaStore.replace(empresas)
+    await useLineaStore().replace(lineas)
+    await useMarcaStore().replace(marcas)
+    await useVendedorStore().replace(vendedores)
+    await useProductoStore().replace(productos)
   }
 
-  // Pedidos y egresos demo de HOY: se garantizan si no hay egresos con fecha de hoy
+  // Pedidos y egresos demo de HOY: solo si no hay egresos con fecha de hoy en la nube.
   const egresosStore = useEgresoStore()
   if (egresosStore.items.some((e) => new Date(e.fecha).toDateString() === hoyKey)) return
 
@@ -112,11 +112,47 @@ export function seedDemoData() {
     { id: 'egr_3', pedidoId: 'ped_3', fecha: iso(14, 20), monto: montos.ped_3 - 20000, formaPago: 'Contado', descripcion: 'Saldo pendiente de $20.000' }
   ]
 
+  // Los egresos esperan a que sus pedidos ya existan (FK pedidos → egresos).
   const pedidoStore = usePedidoStore()
-  pedidos.forEach((p) => {
-    if (!pedidoStore.items.some((x) => x.id === p.id)) pedidoStore.add(p)
-  })
-  egresos.forEach((e) => {
-    if (!egresosStore.items.some((x) => x.id === e.id)) egresosStore.add(e)
-  })
+  for (const p of pedidos) {
+    if (!pedidoStore.items.some((x) => x.id === p.id)) await pedidoStore.add(p)
+  }
+  for (const e of egresos) {
+    if (!egresosStore.items.some((x) => x.id === e.id)) await egresosStore.add(e)
+  }
+
+  // Borradores demo: pedidos preparados antes de que llegue el vendedor. Idempotente por id.
+  const borradorStore = useBorradorStore()
+  const borradores: BorradorPedido[] = [
+    {
+      id: 'bor_1',
+      empresaId: 'emp_centro',
+      fechaEntrega: iso(11, 30),
+      notas: 'Esperar a la vendedora Lorena para cerrar precios',
+      lineas: [{ id: 'lb_1', productoId: 'prod_1', cantidad: 18, precioUnitario: 8500 }],
+      actualizadoEn: iso(7, 50)
+    },
+    {
+      id: 'bor_2',
+      empresaId: 'emp_norte',
+      vendedorId: 'ven_1',
+      fechaEntrega: iso(12, 0),
+      lineas: [
+        { id: 'lb_3', productoId: 'prod_2', cantidad: 24, precioUnitario: 7200 },
+        { id: 'lb_4', productoId: 'prod_5', cantidad: 12, precioUnitario: 11500 }
+      ],
+      actualizadoEn: iso(7, 55)
+    },
+    {
+      id: 'bor_3',
+      empresaId: 'emp_sur',
+      fechaEntrega: iso(15, 0),
+      notas: 'Confirmar promoción de panelas',
+      lineas: [{ id: 'lb_5', productoId: 'prod_4', cantidad: 36, precioUnitario: 5600 }],
+      actualizadoEn: iso(8, 5)
+    }
+  ]
+  for (const b of borradores) {
+    if (!borradorStore.items.some((x) => x.id === b.id)) await borradorStore.add(b)
+  }
 }

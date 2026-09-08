@@ -2,24 +2,12 @@
   <div class="min-h-full flex items-center justify-center p-4 md:p-8">
     <div class="w-full max-w-[1020px] rounded-2xl overflow-hidden border border-slate-800 bg-[#1f2937] shadow-2xl">
       <!-- Header -->
-      <header class="flex items-center justify-between gap-3 px-6 md:px-9 py-4 bg-slate-900/40">
-        <div class="flex items-center gap-3 w-full md:w-auto">
-          <n-input
-            v-model:value="busqueda"
-            size="large"
-            round
-            clearable
-            placeholder="Buscar pedidos, empresas…"
-            class="w-full md:w-72"
-          >
-            <template #prefix><n-icon :component="SearchOutline" /></template>
-          </n-input>
-          <router-link class="hidden sm:block shrink-0" to="/pedidos/nuevo">
-            <n-button type="warning" round size="large" class="font-semibold !px-5">
-              Registrar pedido
-            </n-button>
-          </router-link>
-        </div>
+      <header class="flex items-center justify-end px-6 md:px-9 py-4 bg-slate-900/40">
+        <router-link class="hidden sm:block shrink-0" to="/pedidos/nuevo">
+          <n-button type="warning" round size="large" class="font-semibold !px-5">
+            Registrar pedido
+          </n-button>
+        </router-link>
       </header>
 
       <!-- Body: 3 zonas principales -->
@@ -166,7 +154,6 @@ import {
   ChevronBackOutline,
   ChevronForwardOutline,
   StorefrontOutline,
-  SearchOutline,
   WalletOutline
 } from '@vicons/ionicons5'
 import { useCatalog } from '@/composables/useCatalog'
@@ -177,8 +164,6 @@ const { empresas, pedidos, vendedores, egresos } = useCatalog()
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-const busqueda = ref('')
 
 const now = new Date()
 const view = ref({ y: now.getFullYear(), m: now.getMonth(), d: now.getDate() })

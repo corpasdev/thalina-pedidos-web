@@ -81,6 +81,20 @@ export interface Pedido {
 
 export type FormaPago = 'Contado' | 'Crédito' | 'Transferencia' | 'Cheque' | 'Contra catálogo'
 
+/**
+ * Borrador de pedido: se prepara antes de que llegue el vendedor para agilizar
+ * el pedido cuando este visita la tienda. Puede guardarse sin vendedor asignado.
+ */
+export interface BorradorPedido {
+  id: ID
+  empresaId: ID
+  vendedorId?: ID
+  fechaEntrega?: string
+  lineas: LineaPedido[]
+  notas?: string
+  actualizadoEn: string
+}
+
 export interface Egreso {
   id: ID
   pedidoId: ID

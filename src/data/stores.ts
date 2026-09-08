@@ -1,11 +1,23 @@
-import { createCrudStore } from './crudStore'
-import type { Empresa, Linea, Vendedor, Marca, Producto, Pedido, Egreso, Duplicado } from '@/domain/models'
+import { createSupabaseCrudStore } from './supabaseCrudStore'
+import {
+  EMPRESAS_COL,
+  LINEAS_COL,
+  VENDEDORES_COL,
+  MARCAS_COL,
+  PRODUCTOS_COL,
+  PEDIDOS_COL,
+  EGRESOS_COL,
+  DUPLICADOS_COL,
+  BORRADORES_COL
+} from '@/lib/supabaseSchema'
+import type { Empresa, Linea, Vendedor, Marca, Producto, Pedido, Egreso, Duplicado, BorradorPedido } from '@/domain/models'
 
-export const useEmpresaStore = createCrudStore<Empresa>('empresas')
-export const useLineaStore = createCrudStore<Linea>('lineas')
-export const useVendedorStore = createCrudStore<Vendedor>('vendedores')
-export const useMarcaStore = createCrudStore<Marca>('marcas')
-export const useProductoStore = createCrudStore<Producto>('productos')
-export const usePedidoStore = createCrudStore<Pedido>('pedidos')
-export const useEgresoStore = createCrudStore<Egreso>('egresos')
-export const useDuplicadoStore = createCrudStore<Duplicado>('duplicados')
+export const useEmpresaStore = createSupabaseCrudStore<Empresa>('empresas', EMPRESAS_COL)
+export const useLineaStore = createSupabaseCrudStore<Linea>('lineas', LINEAS_COL)
+export const useVendedorStore = createSupabaseCrudStore<Vendedor>('vendedores', VENDEDORES_COL)
+export const useMarcaStore = createSupabaseCrudStore<Marca>('marcas', MARCAS_COL)
+export const useProductoStore = createSupabaseCrudStore<Producto>('productos', PRODUCTOS_COL)
+export const usePedidoStore = createSupabaseCrudStore<Pedido>('pedidos', PEDIDOS_COL)
+export const useEgresoStore = createSupabaseCrudStore<Egreso>('egresos', EGRESOS_COL)
+export const useDuplicadoStore = createSupabaseCrudStore<Duplicado>('duplicados', DUPLICADOS_COL)
+export const useBorradorStore = createSupabaseCrudStore<BorradorPedido>('borradores', BORRADORES_COL)

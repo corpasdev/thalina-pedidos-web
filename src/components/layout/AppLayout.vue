@@ -55,7 +55,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { NIcon } from 'naive-ui'
 import type { MenuOption } from 'naive-ui'
 import {
-  Grid, Storefront, People, Cube, Receipt, Wallet, ChevronDownOutline, CartOutline
+  Grid, Storefront, People, Cube, Receipt, Wallet, ChevronDownOutline, CartOutline, CreateOutline
 } from '@vicons/ionicons5'
 
 const route = useRoute()
@@ -67,6 +67,7 @@ const renderIcon = (icon: Component) => () => h(NIcon, null, { default: () => h(
 const menuOptions: MenuOption[] = [
   { label: 'Dashboard', key: '/dashboard', icon: renderIcon(Grid) },
   { label: 'Pedidos', key: '/pedidos', icon: renderIcon(Receipt) },
+  { label: 'Borradores', key: '/borradores', icon: renderIcon(CreateOutline) },
   { label: 'Egresos', key: '/egresos', icon: renderIcon(Wallet) },
   { label: 'Proveedores', key: '/proveedores', icon: renderIcon(Storefront) },
   { label: 'Vendedores', key: '/vendedores', icon: renderIcon(People) },
