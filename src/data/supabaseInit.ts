@@ -1,4 +1,4 @@
-import { useEmpresaStore, useLineaStore, useVendedorStore, useMarcaStore, useProductoStore, usePedidoStore, useEgresoStore, useDuplicadoStore, useBorradorStore } from './stores'
+import { useEmpresaStore, useLineaStore, useVendedorStore, useMarcaStore, useProductoStore, usePedidoStore, useEgresoStore, useDuplicadoStore } from './stores'
 
 /** Carga todas las colecciones desde Supabase antes de montar la app. */
 export async function initializeCatalogFromCloud() {
@@ -10,8 +10,7 @@ export async function initializeCatalogFromCloud() {
     useProductoStore().load(),
     usePedidoStore().load(),
     useEgresoStore().load(),
-    useDuplicadoStore().load(),
-    useBorradorStore().load()
+    useDuplicadoStore().load()
   ]
   await Promise.all(loads)
 }

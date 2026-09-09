@@ -8,9 +8,9 @@ import {
   PEDIDOS_COL,
   EGRESOS_COL,
   DUPLICADOS_COL,
-  BORRADORES_COL
+  PROFILES_COL
 } from '@/lib/supabaseSchema'
-import type { Empresa, Linea, Vendedor, Marca, Producto, Pedido, Egreso, Duplicado, BorradorPedido } from '@/domain/models'
+import type { Empresa, Linea, Vendedor, Marca, Producto, Pedido, Egreso, Duplicado, Usuario } from '@/domain/models'
 
 export const useEmpresaStore = createSupabaseCrudStore<Empresa>('empresas', EMPRESAS_COL)
 export const useLineaStore = createSupabaseCrudStore<Linea>('lineas', LINEAS_COL)
@@ -20,4 +20,4 @@ export const useProductoStore = createSupabaseCrudStore<Producto>('productos', P
 export const usePedidoStore = createSupabaseCrudStore<Pedido>('pedidos', PEDIDOS_COL)
 export const useEgresoStore = createSupabaseCrudStore<Egreso>('egresos', EGRESOS_COL)
 export const useDuplicadoStore = createSupabaseCrudStore<Duplicado>('duplicados', DUPLICADOS_COL)
-export const useBorradorStore = createSupabaseCrudStore<BorradorPedido>('borradores', BORRADORES_COL)
+export const useUsuarioStore = createSupabaseCrudStore<Usuario>('usuarios', PROFILES_COL)

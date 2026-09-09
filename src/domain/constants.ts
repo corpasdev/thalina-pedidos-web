@@ -1,4 +1,13 @@
-import type { DiaSemana, EstadoPedido, Categoria, TipoEmpresa, FormaPago } from './models'
+import type { DiaSemana, EstadoPedido, Categoria, TipoEmpresa, FormaPago, RolDef, Rol } from './models'
+
+/** Roles: escala mínima (collaborator) → máxima (admin). */
+export const ROLES: RolDef[] = [
+  { nombre: 'admin', etiqueta: 'Administrador', nivel: 2 },
+  { nombre: 'collaborator', etiqueta: 'Colaborador', nivel: 1 }
+]
+
+export const etiquetaRol = (rol: Rol): string =>
+  ROLES.find((r) => r.nombre === rol)?.etiqueta ?? rol
 
 export const DIAS_SEMANA: DiaSemana[] = [
   'Lunes',
@@ -14,6 +23,7 @@ export const DIAS_SEMANA: DiaSemana[] = [
 export const DIAS_ENTREGA: DiaSemana[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 
 export const ESTADOS_PEDIDO: EstadoPedido[] = [
+  'Borrador',
   'Pendiente',
   'Confirmado',
   'En tránsito',

@@ -63,7 +63,7 @@ const descripcion = ref('')
 
 const pedidoOptions = computed(() =>
   pedidos.items
-    .filter((p) => p.estado !== 'Cancelado')
+    .filter((p) => p.estado !== 'Cancelado' && p.estado !== 'Borrador')
     .map((p) => ({
       label: `${p.numero} · ${nombreDeEmpresa(empresas.items, p.empresaId)} · ${formatMoney(p.lineas.reduce((a, l) => a + l.cantidad * l.precioUnitario, 0))}`,
       value: p.id

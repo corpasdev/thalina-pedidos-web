@@ -7,13 +7,14 @@ import type {
   Pedido,
   Egreso,
   Duplicado,
-  BorradorPedido,
+  Usuario,
   DiaSemana,
   Categoria,
   TipoEmpresa,
   EstadoPedido,
   FormaPago,
-  LineaPedido
+  LineaPedido,
+  Rol
 } from '@/domain/models'
 
 /** Configuración de una colección (entidad de dominio ↔ tabla de Supabase). */
@@ -28,6 +29,28 @@ const num = (v: unknown): number | undefined =>
 const str = (v: unknown): string | undefined =>
   v === null || v === undefined ? undefined : String(v)
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
+
+export const PROFILES_COL: DbCollection<Usuario> = {
+  table: 'profiles',
+  toRow: (u) => ({
+    id: u.id,
+    email: u.email,
+    username: u.username ?? null,
+    full_name: u.nombre,
+    role_name: u.rol,
+    active: u.activo,
+    created_at: u.creadoEn
+  }),
+  fromRow: (r) => ({
+    id: str(r.id) ?? '',
+    email: str(r.email) ?? '',
+    username: str(r.username),
+    nombre: str(r.full_name) ?? '',
+    rol: (str(r.role_name) as Rol) ?? 'collaborator',
+    activo: r.active !== undefined ? Boolean(r.active) : true,
+    creadoEn: str(r.created_at) ?? ''
+  })
+}
 
 export const EMPRESAS_COL: DbCollection<Empresa> = {
   table: 'companies',
@@ -112,7 +135,7 @@ export const PEDIDOS_COL: DbCollection<Pedido> = {
     id: p.id,
     order_number: p.numero,
     company_id: p.empresaId,
-    seller_id: p.vendedorId,
+    seller_id: p.vendedorId ?? null,
     order_date: p.fechaPedido,
     delivery_date: p.fechaEntrega ?? null,
     status: p.estado,
@@ -124,7 +147,7 @@ export const PEDIDOS_COL: DbCollection<Pedido> = {
     id: str(r.id) ?? '',
     numero: str(r.order_number) ?? '',
     empresaId: str(r.company_id) ?? '',
-    vendedorId: str(r.seller_id) ?? '',
+    vendedorId: str(r.seller_id),
     fechaPedido: str(r.order_date) ?? '',
     fechaEntrega: str(r.delivery_date),
     estado: (str(r.status) as EstadoPedido) ?? 'Pendiente',
@@ -171,27 +194,5 @@ export const DUPLICADOS_COL: DbCollection<Duplicado> = {
     fecha: str(r.date) ?? '',
     coincidencias: arr(r.matches) as Duplicado['coincidencias'],
     confirmado: Boolean(r.confirmed)
-  })
-}
-
-export const BORRADORES_COL: DbCollection<BorradorPedido> = {
-  table: 'drafts',
-  toRow: (b) => ({
-    id: b.id,
-    company_id: b.empresaId,
-    seller_id: b.vendedorId ?? null,
-    delivery_date: b.fechaEntrega ?? null,
-    notes: b.notas ?? null,
-    lines: b.lineas,
-    updated_at: b.actualizadoEn
-  }),
-  fromRow: (r) => ({
-    id: str(r.id) ?? '',
-    empresaId: str(r.company_id) ?? '',
-    vendedorId: str(r.seller_id),
-    fechaEntrega: str(r.delivery_date),
-    notas: str(r.notes),
-    lineas: arr(r.lines) as LineaPedido[],
-    actualizadoEn: str(r.updated_at) ?? ''
   })
 }

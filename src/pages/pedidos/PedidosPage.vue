@@ -36,7 +36,7 @@ import { NText, NTag, NButton, NSpace, NPopconfirm, NDivider, useMessage } from 
 import PageHeader from '@/components/common/PageHeader.vue'
 import DetallePedido from './DetallePedido.vue'
 import { useCatalog } from '@/composables/useCatalog'
-import { formatMoney, formatDate, numeroDestacado } from '@/domain/utils'
+import { formatMoney, formatDate, numeroDestacado, uid, fechaISO } from '@/domain/utils'
 import { ESTADOS_PEDIDO } from '@/domain/constants'
 import { calcularTotalPedido, siguienteNumeroPedido, detectarDuplicados, nombreDeEmpresa, nombreDeVendedor, nombreDeLinea } from '@/services/pedidos'
 import { saldoPendiente } from '@/services/egresos'
@@ -91,10 +91,10 @@ const tieneDuplicado = (row: (typeof rows.value)[number]) =>
   })
 
 const resumen = computed(() => ({
-  activos: pedidos.items.filter((p) => p.estado !== 'Recibido' && p.estado !== 'Cancelado').length,
+  activos: pedidos.items.filter((p) => p.estado !== 'Recibido' && p.estado !== 'Cancelado' && p.estado !== 'Borrador').length,
   pendientes: pedidos.items.filter((p) => p.estado === 'Pendiente').length,
-  valor: rows.value.reduce((a, r) => a + (r.estado === 'Cancelado' ? 0 : r.total), 0),
-  conSaldo: rows.value.filter((r) => r.saldo > 0 && r.estado !== 'Cancelado' && r.estado !== 'Recibido').length
+  valor: rows.value.reduce((a, r) => a + (r.estado === 'Cancelado' || r.estado === 'Borrador' ? 0 : r.total), 0),
+  conSaldo: rows.value.filter((r) => r.saldo > 0 && r.estado !== 'Cancelado' && r.estado !== 'Recibido' && r.estado !== 'Borrador').length
 }))
 
 function eliminar(p: Pedido) {
@@ -108,7 +108,23 @@ function cambiarEstado(p: Pedido, estado: EstadoPedido) {
   message.success(`Pedido ${p.numero} → ${estado}`)
 }
 
+function activarBorrador(p: Pedido) {
+  pedidos.update(p.id, { estado: 'Pendiente' })
+  if (!egresos.items.some((e) => e.pedidoId === p.id)) {
+    egresos.add({
+      id: uid('egr'),
+      pedidoId: p.id,
+      fecha: fechaISO(),
+      monto: calcularTotalPedido(p.lineas),
+      formaPago: 'Contado',
+      descripcion: `Egreso automático pedido ${p.numero}`
+    })
+  }
+  message.success(`Pedido ${p.numero} → Pendiente · egreso contabilizado`)
+}
+
 const estadoTagType: Record<string, 'default' | 'info' | 'success' | 'warning' | 'primary'> = {
+  Borrador: 'default',
   Recibido: 'success',
   Cancelado: 'default',
   'En tránsito': 'warning',
@@ -148,6 +164,7 @@ const columnas = computed(() => [
         default: () => [
           h(NButton, { size: 'tiny', onClick: () => { detalle.value = row; showDetalle.value = true } }, { default: () => 'Ver' }),
           h(NButton, { size: 'tiny', onClick: () => router.push(`/pedidos/${row.id}/editar`) }, { default: () => 'Editar' }),
+          row.estado === 'Borrador' && h(NButton, { size: 'tiny', type: 'primary', secondary: true, onClick: () => activarBorrador(row) }, { default: () => 'Convertir en pedido' }),
           row.estado === 'Pendiente' && h(NButton, { size: 'tiny', type: 'info', secondary: true, onClick: () => cambiarEstado(row, 'Confirmado') }, { default: () => 'Confirmar' }),
           row.estado === 'Confirmado' && h(NButton, { size: 'tiny', type: 'warning', secondary: true, onClick: () => cambiarEstado(row, 'En tránsito') }, { default: () => 'En tránsito' }),
           (row.estado === 'Confirmado' || row.estado === 'En tránsito') && h(NButton, { size: 'tiny', type: 'success', secondary: true, onClick: () => cambiarEstado(row, 'Recibido') }, { default: () => 'Recibir' }),

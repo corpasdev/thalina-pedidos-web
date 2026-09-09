@@ -66,13 +66,14 @@ export interface LineaPedido {
   precioUnitario: number
 }
 
-export type EstadoPedido = 'Pendiente' | 'Confirmado' | 'En tránsito' | 'Recibido' | 'Cancelado'
+export type EstadoPedido = 'Borrador' | 'Pendiente' | 'Confirmado' | 'En tránsito' | 'Recibido' | 'Cancelado'
 
 export interface Pedido {
   id: ID
   numero: string
   empresaId: ID
-  vendedorId: ID
+  /** Opcional: un pedido en estado Borrador se prepara antes de asignar vendedor. */
+  vendedorId?: ID
   fechaPedido: string
   fechaEntrega?: string
   estado: EstadoPedido
@@ -82,20 +83,6 @@ export interface Pedido {
 }
 
 export type FormaPago = 'Contado' | 'Crédito' | 'Transferencia' | 'Cheque' | 'Contra catálogo'
-
-/**
- * Borrador de pedido: se prepara antes de que llegue el vendedor para agilizar
- * el pedido cuando este visita la tienda. Puede guardarse sin vendedor asignado.
- */
-export interface BorradorPedido {
-  id: ID
-  empresaId: ID
-  vendedorId?: ID
-  fechaEntrega?: string
-  lineas: LineaPedido[]
-  notas?: string
-  actualizadoEn: string
-}
 
 export interface Egreso {
   id: ID
@@ -116,4 +103,25 @@ export interface Duplicado {
   coincidencias: { sku: string; productoNombre: string; pedidoAnterior: string; pedidoAnteriorNumero: string }[]
   /** True si se confirma a pesar del aviso */
   confirmado: boolean
+}
+
+/** Rol de acceso a la plataforma. Escala: admin (máximo) → collaborator (mínimo operativo). */
+export type Rol = 'admin' | 'collaborator'
+
+export interface RolDef {
+  nombre: Rol
+  etiqueta: string
+  nivel: number
+}
+
+export interface Usuario {
+  /** uuid de auth.users */
+  id: ID
+  email: string
+  /** Nombre de usuario alternativo para iniciar sesión (tu y usuario) */
+  username?: string
+  nombre: string
+  rol: Rol
+  activo: boolean
+  creadoEn: string
 }

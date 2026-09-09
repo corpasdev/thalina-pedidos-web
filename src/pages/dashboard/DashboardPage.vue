@@ -312,7 +312,7 @@ const highlightColumn = computed(() => {
 const entregaEnDia = (day: number) =>
   pedidos.items.filter((p) => p.fechaEntrega && new Date(p.fechaEntrega).getFullYear() === view.value.y && new Date(p.fechaEntrega).getMonth() === view.value.m && new Date(p.fechaEntrega).getDate() === day)
 
-const entregasDia = computed(() => entregaEnDia(selectedDay.value).filter((p) => p.estado !== 'Cancelado'))
+const entregasDia = computed(() => entregaEnDia(selectedDay.value).filter((p) => p.estado !== 'Cancelado' && p.estado !== 'Borrador'))
 
 const totalDia = computed(() =>
   entregasDia.value.reduce((a, p) => a + p.lineas.reduce((s, l) => s + l.cantidad * l.precioUnitario, 0), 0)

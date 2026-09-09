@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-col gap-5">
     <PageHeader :title="editando ? `Editar ${editando.numero}` : 'Nuevo pedido'" back @back="$router.push('/pedidos')">
-      <n-button type="primary" @click="guardar">Guardar pedido</n-button>
+      <n-button secondary type="primary" @click="guardar('borrador')">Guardar como borrador</n-button>
+      <n-button type="primary" @click="guardar('pedido')">Guardar pedido</n-button>
     </PageHeader>
 
     <n-card title="Encabezado del pedido">
@@ -11,7 +12,7 @@
           <n-select v-model:value="empresaId" :options="empresaOptions" placeholder="Seleccione empresa" @update:value="cambiarEmpresa" />
         </div>
         <div>
-          <span class="text-xs text-gray-400 block mb-1">Vendedor que toma el pedido</span>
+          <span class="text-xs text-gray-400 block mb-1">Vendedor (obligatorio para guardar el pedido)</span>
           <n-select v-model:value="vendedorId" :options="vendedorOptions" :placeholder="empresaId ? 'Seleccione vendedor' : 'Primero elija empresa'" :disabled="!empresaId" />
         </div>
         <div>
@@ -44,7 +45,7 @@
         <div v-for="w in advertencias" :key="w.nombre" class="text-sm">
           <b>{{ w.nombre }}</b>
           <span v-if="w.yaExiste.length > 0"> — ya se pidió en {{ w.yaExiste.join(', ') }}</span>
-          <span v-if="w.vecesEnBorrador > 1"> — {{ w.vecesEnBorrador }} veces en este borrador</span>
+          <span v-if="w.vecesEnBorrador > 1"> — {{ w.vecesEnBorrador }} veces en este pedido</span>
         </div>
       </div>
     </n-alert>
@@ -104,7 +105,7 @@ import { Add as AddIcon, Close as CloseIcon } from '@vicons/ionicons5'
 import { useMessage, useDialog } from 'naive-ui'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { useCatalog } from '@/composables/useCatalog'
-import { uid, formatMoney, normalizeSku } from '@/domain/utils'
+import { uid, formatMoney, normalizeSku, fechaISO } from '@/domain/utils'
 import { ESTADOS_PEDIDO } from '@/domain/constants'
 import { calcularTotalPedido, siguienteNumeroPedido, nombreDeLinea } from '@/services/pedidos'
 import type { Pedido, LineaPedido, EstadoPedido } from '@/domain/models'
@@ -129,7 +130,7 @@ const lineasDraft = ref<LineaPedido[]>([])
 watch(editando, (pedido) => {
   if (pedido) {
     empresaId.value = pedido.empresaId
-    vendedorId.value = pedido.vendedorId
+    vendedorId.value = pedido.vendedorId ?? null
     fechaPedido.value = new Date(pedido.fechaPedido).getTime()
     fechaEntrega.value = pedido.fechaEntrega ? new Date(pedido.fechaEntrega).getTime() : null
     estado.value = pedido.estado
@@ -216,22 +217,42 @@ const advertencias = computed(() => {
   return warnings
 })
 
-function guardar() {
+function registrarEgreso(p: Pedido) {
+  if (egresos.items.some((e) => e.pedidoId === p.id)) return
+  egresos.add({
+    id: uid('egr'),
+    pedidoId: p.id,
+    fecha: fechaISO(),
+    monto: total.value,
+    formaPago: 'Contado',
+    descripcion: `Egreso automático pedido ${p.numero}`
+  })
+}
+
+function guardar(modo: 'pedido' | 'borrador') {
   if (!empresaId.value) return message.error('Seleccione una empresa')
-  if (!vendedorId.value) return message.error('Seleccione el vendedor que toma el pedido')
   if (!fechaPedido.value) return message.error('Indique la fecha del pedido')
-  if (lineasDraft.value.filter((l) => l.productoId).length === 0) return message.error('Agregue al menos un producto')
+  if (modo === 'pedido') {
+    if (!vendedorId.value) return message.error('Seleccione el vendedor que toma el pedido')
+    if (lineasDraft.value.filter((l) => l.productoId).length === 0) return message.error('Agregue al menos un producto')
+  }
   if (lineasDraft.value.some((l) => l.productoId && (!l.cantidad || l.cantidad <= 0))) return message.error('Cantidades deben ser mayores a 0')
+
+  const estadoPedido: EstadoPedido = modo === 'borrador'
+    ? 'Borrador'
+    : editando.value && estado.value !== 'Borrador'
+      ? estado.value
+      : 'Pendiente'
 
   const commit = () => {
     const data: Pedido = editando.value
       ? {
           ...editando.value,
           empresaId: empresaId.value!,
-          vendedorId: vendedorId.value!,
+          vendedorId: vendedorId.value ?? undefined,
           fechaPedido: new Date(fechaPedido.value!).toISOString(),
           fechaEntrega: fechaEntrega.value ? new Date(fechaEntrega.value).toISOString() : undefined,
-          estado: estado.value,
+          estado: estadoPedido,
           notas: notas.value.trim() || undefined,
           lineas: lineasDraft.value
         }
@@ -239,10 +260,10 @@ function guardar() {
           id: uid('ped'),
           numero: siguienteNumeroPedido(pedidos.items),
           empresaId: empresaId.value!,
-          vendedorId: vendedorId.value!,
+          vendedorId: vendedorId.value ?? undefined,
           fechaPedido: new Date(fechaPedido.value!).toISOString(),
           fechaEntrega: fechaEntrega.value ? new Date(fechaEntrega.value).toISOString() : undefined,
-          estado: 'Pendiente',
+          estado: estadoPedido,
           notas: notas.value.trim() || undefined,
           lineas: lineasDraft.value,
           creadoEn: new Date().toISOString()
@@ -253,16 +274,10 @@ function guardar() {
       message.success(`Pedido ${data.numero} actualizado`)
     } else {
       pedidos.add(data)
-      egresos.add({
-        id: uid('egr'),
-        pedidoId: data.id,
-        fecha: new Date().toISOString(),
-        monto: total.value,
-        formaPago: 'Contado',
-        descripcion: `Egreso automático pedido ${data.numero}`
-      })
-      message.success(`Pedido ${data.numero} guardado · egreso contabilizado`)
+      message.success(estadoPedido === 'Borrador' ? `Borrador ${data.numero} guardado` : `Pedido ${data.numero} guardado · egreso contabilizado`)
     }
+
+    if (estadoPedido !== 'Borrador') registrarEgreso(data)
     router.push('/pedidos')
   }
 
