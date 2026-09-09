@@ -1,31 +1,43 @@
 <template>
   <div class="flex justify-center p-4 md:p-8">
-    <div
-      class="w-full max-w-[1020px] rounded-2xl overflow-hidden border shadow-2xl flex flex-col md:min-h-[calc(100dvh-168px)] transition-colors"
-      :class="esOscuro ? 'border-slate-800 bg-[#1f2937]' : 'border-slate-200 bg-white'"
-    >
-      <!-- Header -->
-      <header
-        class="flex items-center justify-end px-6 md:px-9 py-4 shrink-0 transition-colors"
-        :class="esOscuro ? 'bg-slate-900/40' : 'bg-slate-50'"
+    <div class="w-full max-w-[1020px] flex flex-col gap-4 md:min-h-[calc(100dvh-168px)]">
+      <!-- Header card -->
+      <motion.div
+        class="rounded-2xl overflow-hidden border shadow-lg transition-colors"
+        :class="esOscuro ? 'border-slate-800 bg-[#1f2937]' : 'border-slate-200 bg-white'"
+        :initial="{ opacity: 0, y: -10 }"
+        :animate="{ opacity: 1, y: 0 }"
+        :transition="{ duration: 0.25, ease: 'easeOut' }"
       >
-        <motion.div class="hidden sm:block shrink-0" :whileHover="{ scale: 1.03 }">
-          <router-link to="/pedidos/nuevo">
-            <n-button type="warning" round size="large" class="font-semibold !px-5">
-              Registrar pedido
-            </n-button>
-          </router-link>
-        </motion.div>
-      </header>
+        <header
+          class="flex items-center justify-end px-6 md:px-9 py-4 transition-colors"
+          :class="esOscuro ? 'bg-slate-900/40' : 'bg-slate-50'"
+        >
+          <div class="hidden sm:flex items-center gap-2 shrink-0">
+            <motion.div :whileHover="{ scale: 1.03 }">
+              <router-link to="/pedidos/nuevo">
+                <n-button type="warning" round size="large" class="font-semibold !px-5">
+                  Registrar pedido
+                </n-button>
+              </router-link>
+            </motion.div>
+            <motion.div :whileHover="{ scale: 1.03 }">
+              <router-link to="/egresos">
+                <n-button type="error" round size="large" class="font-semibold !px-5">
+                  Registrar egreso
+                </n-button>
+              </router-link>
+            </motion.div>
+          </div>
+        </header>
+      </motion.div>
 
-      <!-- Body: 3 zonas principales -->
-      <div
-        class="grid grid-cols-1 md:grid-cols-[55%_45%] divide-y md:divide-y-0 md:divide-x md:flex-1 md:min-h-0 md:grid-rows-1 transition-colors"
-        :class="esOscuro ? 'divide-slate-800/70' : 'divide-slate-200'"
-      >
-        <!-- Columna izquierda: control + calendario -->
+      <!-- Body: calendar + detail cards -->
+      <div class="grid grid-cols-1 md:grid-cols-[55%_45%] gap-4 md:flex-1 md:min-h-0">
+        <!-- Card: Calendario -->
         <motion.section
-          class="flex flex-col p-6 md:p-8 min-h-0"
+          class="rounded-2xl overflow-hidden border shadow-lg flex flex-col p-6 md:p-8 min-h-0 transition-colors"
+          :class="esOscuro ? 'border-slate-800 bg-[#1f2937]' : 'border-slate-200 bg-white'"
           :initial="{ opacity: 0, y: 12 }"
           :animate="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.3, ease: 'easeOut' }"
@@ -45,17 +57,28 @@
 
           <div class="mt-6 flex-1 min-h-0 flex flex-col">
             <div class="flex items-center justify-between mb-3 shrink-0">
-              <div class="flex items-center gap-2 text-sm font-semibold transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">
+              <motion.div
+                :key="monthKey"
+                class="flex items-center gap-2 text-sm font-semibold transition-colors"
+                :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'"
+                :initial="{ opacity: 0, y: -6 }"
+                :animate="{ opacity: 1, y: 0 }"
+                :transition="{ duration: 0.2, ease: 'easeOut' }"
+              >
                 <n-icon :component="CalendarOutline" />
                 <span>{{ monthLabel }}</span>
-              </div>
+              </motion.div>
               <div class="flex items-center gap-0.5">
-                <n-button quaternary circle size="tiny" @click="prevMonth">
-                  <template #icon><n-icon :component="ChevronBackOutline" /></template>
-                </n-button>
-                <n-button quaternary circle size="tiny" @click="nextMonth">
-                  <template #icon><n-icon :component="ChevronForwardOutline" /></template>
-                </n-button>
+                <motion.div :whileTap="{ scale: 0.85 }" :transition="{ type: 'spring', stiffness: 500, damping: 20 }">
+                  <n-button quaternary circle size="tiny" @click="prevMonth">
+                    <template #icon><n-icon :component="ChevronBackOutline" /></template>
+                  </n-button>
+                </motion.div>
+                <motion.div :whileTap="{ scale: 0.85 }" :transition="{ type: 'spring', stiffness: 500, damping: 20 }">
+                  <n-button quaternary circle size="tiny" @click="nextMonth">
+                    <template #icon><n-icon :component="ChevronForwardOutline" /></template>
+                  </n-button>
+                </motion.div>
               </div>
             </div>
 
@@ -64,30 +87,53 @@
             </div>
 
             <div class="relative flex-1 min-h-0">
-              <div
+              <motion.div
                 class="absolute inset-y-0 rounded-md bg-[#00A86B]/10"
-                :style="highlightColumnStyle"
+                :animate="{ left: `${(highlightColumn * 100) / 7}%`, width: `${100 / 7}%` }"
+                :transition="{ type: 'spring', stiffness: 260, damping: 26 }"
               />
-              <div class="grid grid-cols-7 auto-rows-fr gap-y-0.5 gap-x-0.5 h-full relative">
-                <n-button
-                  v-for="(d, i) in grid"
-                  :key="i"
-                  :quaternary="d !== selectedDay"
-                  :type="d === selectedDay ? 'primary' : 'default'"
-                  circle
-                  :disabled="d === null"
-                  size="small"
-                  class="h-full w-full !p-0"
-                  @click="d !== null && (selectedDay = d)"
+              <AnimatePresence mode="wait">
+                <motion.div
+                  :key="monthKey"
+                  class="grid grid-cols-7 auto-rows-fr gap-y-0.5 gap-x-0.5 h-full relative"
+                  :initial="{ opacity: 0, x: direction * 28 }"
+                  :animate="{ opacity: 1, x: 0 }"
+                  :exit="{ opacity: 0, x: direction * -28 }"
+                  :transition="{ duration: 0.18, ease: 'easeOut' }"
                 >
-                  <template #default>
-                    <span class="flex flex-col items-center justify-center leading-none">
-                      <span>{{ d ?? '' }}</span>
-                      <span v-if="d && hasDelivery(d)" class="mt-0.5 h-1 w-1 rounded-full bg-[#FFD700]" />
-                    </span>
-                  </template>
-                </n-button>
-              </div>
+                  <motion.div
+                    v-for="(d, i) in grid"
+                    :key="i"
+                    class="h-full w-full flex items-center justify-center"
+                    :whileHover="d !== null ? { scale: 1.1 } : undefined"
+                    :whileTap="d !== null ? { scale: 0.88 } : undefined"
+                    :transition="{ type: 'spring', stiffness: 420, damping: 20 }"
+                  >
+                    <n-button
+                      :quaternary="d !== selectedDay"
+                      :type="d === selectedDay ? 'primary' : 'default'"
+                      circle
+                      :disabled="d === null"
+                      size="small"
+                      class="h-full w-full !p-0"
+                      @click="d !== null && (selectedDay = d)"
+                    >
+                      <template #default>
+                        <span class="flex flex-col items-center justify-center leading-none">
+                          <span>{{ d ?? '' }}</span>
+                          <motion.span
+                            v-if="d && hasDelivery(d)"
+                            class="mt-0.5 h-1 w-1 rounded-full bg-[#FFD700]"
+                            :initial="{ scale: 0, opacity: 0 }"
+                            :animate="{ scale: 1, opacity: 1 }"
+                            :transition="{ type: 'spring', stiffness: 500, damping: 15 }"
+                          />
+                        </span>
+                      </template>
+                    </n-button>
+                  </motion.div>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             <div class="mt-3 flex items-center gap-3 text-[11px] text-gray-500 shrink-0">
@@ -97,17 +143,16 @@
           </div>
         </motion.section>
 
-        <!-- Columna derecha: panel de detalle -->
-        <motion.section
-          class="relative overflow-hidden flex flex-col gap-5 p-6 md:p-8 min-h-0 transition-colors"
-          :style="panelStyle"
-          :initial="{ opacity: 0, x: 12 }"
-          :animate="{ opacity: 1, x: 0 }"
-          :transition="{ duration: 0.3, delay: 0.08, ease: 'easeOut' }"
-        >
-          <div class="flex-1 min-h-0 overflow-y-auto flex flex-col gap-5">
-          <!-- EGRESOS HOY: contenido de alto impacto -->
-          <div class="relative rounded-2xl border border-[#FFD700]/30 bg-[#FFD700]/[0.07] p-4 overflow-hidden">
+        <!-- Right column: stacked cards -->
+        <div class="flex flex-col gap-4">
+          <!-- Card: Egresos hoy -->
+          <motion.div
+            class="relative rounded-2xl overflow-hidden border shadow-lg p-5 transition-colors"
+            :class="esOscuro ? 'border-[#FFD700]/20 bg-[#1f2937]' : 'border-[#FFD700]/25 bg-[#FFD700]/[0.04]'"
+            :initial="{ opacity: 0, x: 12 }"
+            :animate="{ opacity: 1, x: 0 }"
+            :transition="{ duration: 0.3, delay: 0.08, ease: 'easeOut' }"
+          >
             <div class="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full border-[12px] border-[#FFD700]/10" />
             <div class="flex items-center gap-2">
               <span class="text-[10px] font-bold uppercase tracking-widest transition-colors" :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'">Egresos hoy</span>
@@ -134,9 +179,16 @@
             >
               Ver egresos <n-icon :component="ChevronForwardOutline" :size="12" />
             </router-link>
-          </div>
+          </motion.div>
 
-          <div class="flex flex-col gap-2">
+          <!-- Card: Pedidos pagados hoy -->
+          <motion.div
+            class="rounded-2xl overflow-hidden border shadow-lg p-5 transition-colors"
+            :class="esOscuro ? 'border-slate-800 bg-[#1f2937]' : 'border-slate-200 bg-white'"
+            :initial="{ opacity: 0, x: 12 }"
+            :animate="{ opacity: 1, x: 0 }"
+            :transition="{ duration: 0.3, delay: 0.16, ease: 'easeOut' }"
+          >
             <div class="flex items-center justify-between">
               <div class="text-[11px] font-semibold uppercase tracking-wider transition-colors" :class="esOscuro ? 'text-white/60' : 'text-slate-500'">Pedidos pagados hoy</div>
               <router-link
@@ -147,47 +199,44 @@
                 Ver pedidos <n-icon :component="ChevronForwardOutline" :size="12" />
               </router-link>
             </div>
-            <div v-if="pagosHoy.length === 0" class="text-xs transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Sin pagos registrados hoy</div>
-            <div
-              v-for="p in pagosHoy"
-              :key="p.id"
-              class="rounded-xl p-3 flex flex-col gap-2 transition-colors"
-              :class="esOscuro ? 'bg-white/[0.06] border border-white/10' : 'bg-white border border-slate-200 shadow-sm'"
-            >
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 rounded-lg bg-[#FFD700]/15 text-[#FFD700] grid place-items-center shrink-0">
-                    <n-icon :component="WalletOutline" />
-                  </div>
-                  <div class="min-w-0 leading-tight">
-                    <div class="text-sm font-bold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ p.empresa }}</div>
-                    <div class="text-[11px] truncate transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Vendedor: {{ p.vendedor }}</div>
-                  </div>
-                </div>
-                <n-tag :bordered="false" size="small" :type="p.saldo > 0 ? 'warning' : 'success'">
-                  {{ p.formaPago }}
-                </n-tag>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Total del pedido</span>
-                <span class="text-sm font-bold tabular-nums transition-colors" :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'">{{ formatMoney(p.total) }}</span>
-              </div>
+            <div v-if="pagosHoy.length === 0" class="mt-3 text-xs transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Sin pagos registrados hoy</div>
+            <div v-else class="mt-3 flex flex-col gap-2">
               <div
-                v-if="p.saldo > 0"
-                class="rounded-md bg-[#FFD700]/10 px-2.5 py-1.5 flex items-center justify-between text-[11px] transition-colors"
-                :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'"
+                v-for="p in pagosHoy"
+                :key="p.id"
+                class="rounded-xl p-3 flex flex-col gap-2 transition-colors"
+                :class="esOscuro ? 'bg-white/[0.06] border border-white/10' : 'bg-slate-50 border border-slate-200'"
               >
-                <span class="font-semibold">Abono parcial</span>
-                <span class="font-bold tabular-nums">Saldo {{ formatMoney(p.saldo) }}</span>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-[#FFD700]/15 text-[#FFD700] grid place-items-center shrink-0">
+                      <n-icon :component="WalletOutline" />
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                      <div class="text-sm font-bold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ p.empresa }}</div>
+                      <div class="text-[11px] truncate transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Vendedor: {{ p.vendedor }}</div>
+                    </div>
+                  </div>
+                  <n-tag :bordered="false" size="small" :type="p.saldo > 0 ? 'warning' : 'success'">
+                    {{ p.formaPago }}
+                  </n-tag>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Total del pedido</span>
+                  <span class="text-sm font-bold tabular-nums transition-colors" :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'">{{ formatMoney(p.total) }}</span>
+                </div>
+                <div
+                  v-if="p.saldo > 0"
+                  class="rounded-md bg-[#FFD700]/10 px-2.5 py-1.5 flex items-center justify-between text-[11px] transition-colors"
+                  :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'"
+                >
+                  <span class="font-semibold">Abono parcial</span>
+                  <span class="font-bold tabular-nums">Saldo {{ formatMoney(p.saldo) }}</span>
+                </div>
               </div>
             </div>
-          </div>
-
-          </div>
-
-          <div class="pointer-events-none absolute -bottom-12 -right-12 w-48 h-48 rounded-full border-[14px] border-[#FFD700]/10" />
-          <div class="pointer-events-none absolute -bottom-8 right-24 w-24 h-24 rounded-full border-8 border-[#00A86B]/20" />
-        </motion.section>
+          </motion.div>
+        </div>
       </div>
     </div>
   </div>
@@ -195,7 +244,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { motion } from 'motion-v'
+import { AnimatePresence, motion } from 'motion-v'
 import {
   CalendarOutline,
   ChevronBackOutline,
@@ -210,12 +259,6 @@ import { nombreDeEmpresa } from '@/services/pedidos'
 
 const { esOscuro } = useTheme()
 
-const panelStyle = computed(() => ({
-  background: esOscuro.value
-    ? 'linear-gradient(165deg, #0e4632 0%, #072b1e 100%)'
-    : 'linear-gradient(165deg, #fdfaf0 0%, #eff6f1 100%)'
-}))
-
 const { empresas, pedidos, vendedores, egresos } = useCatalog()
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -224,8 +267,10 @@ const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'Jul
 const now = new Date()
 const view = ref({ y: now.getFullYear(), m: now.getMonth(), d: now.getDate() })
 const selectedDay = ref(now.getDate())
+const direction = ref(0)
 
 const monthLabel = computed(() => `${monthNames[view.value.m]} ${view.value.y}`)
+const monthKey = computed(() => `${view.value.y}-${view.value.m}`)
 
 const grid = computed<(number | null)[]>(() => {
   const { y, m } = view.value
@@ -239,6 +284,7 @@ const grid = computed<(number | null)[]>(() => {
 function prevMonth() { moveMonth(-1) }
 function nextMonth() { moveMonth(1) }
 function moveMonth(delta: number) {
+  direction.value = delta
   view.value = { ...view.value, ...incrementMonth(view.value.y, view.value.m, delta) }
   selectedDay.value = 1
 }
@@ -262,10 +308,6 @@ const highlightColumn = computed(() => {
   const idx = grid.value.findIndex((v) => v === selectedDay.value)
   return idx >= 0 ? idx % 7 : 0
 })
-const highlightColumnStyle = computed(() => ({
-  left: `calc(${highlightColumn.value} * (100% / 7))`,
-  width: 'calc(100% / 7)'
-}))
 
 const entregaEnDia = (day: number) =>
   pedidos.items.filter((p) => p.fechaEntrega && new Date(p.fechaEntrega).getFullYear() === view.value.y && new Date(p.fechaEntrega).getMonth() === view.value.m && new Date(p.fechaEntrega).getDate() === day)
