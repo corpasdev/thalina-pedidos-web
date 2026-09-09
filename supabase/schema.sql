@@ -8,7 +8,8 @@ create table if not exists public.companies (
   name text not null,
   type text not null default 'Propia',
   brands jsonb not null default '[]'::jsonb,
-  arrival_days jsonb not null default '[]'::jsonb,
+  order_days jsonb not null default '[]'::jsonb,
+  delivery_days jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
 

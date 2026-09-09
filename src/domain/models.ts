@@ -13,8 +13,10 @@ export interface Empresa {
   tipo: TipoEmpresa
   /** Franquicia: trae productos de varias marcas. Propia: vende sus propios productos. */
   marcas: string[]
-  /** Días en que llega el pedido / distribuye la marca */
-  diasLlegada: DiaSemana[]
+  /** Días en que el proveedor pasa a tomar el pedido */
+  orderDays: DiaSemana[]
+  /** Días en que el proveedor entrega/distribuye el producto a la tienda */
+  deliveryDays: DiaSemana[]
 }
 
 /** Línea de productos dentro de una empresa (alimentos, aseo, etc). Cada vendedor cubre una línea. */

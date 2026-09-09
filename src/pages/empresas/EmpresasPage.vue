@@ -36,8 +36,13 @@
         </div>
 
         <div>
-          <span class="text-xs text-gray-400 block mb-1">Días en que la empresa llega o programa pedidos</span>
-          <n-select v-model:value="dias" multiple :options="dayOptions" />
+          <span class="text-xs text-gray-400 block mb-1">Días en que el vendedor pasa a tomar el pedido</span>
+          <n-select v-model:value="orderDays" multiple :options="orderDayOptions" />
+        </div>
+
+        <div>
+          <span class="text-xs text-gray-400 block mb-1">Días en que llega / se distribuye el producto a la tienda</span>
+          <n-select v-model:value="deliveryDays" multiple :options="deliveryDayOptions" />
         </div>
       </div>
     </n-modal>
@@ -50,27 +55,30 @@ import { NText, NTag, NSpace, NButton, NPopconfirm, useMessage } from 'naive-ui'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { useCatalog } from '@/composables/useCatalog'
 import { uid } from '@/domain/utils'
-import { DIAS_ENTREGA } from '@/domain/constants'
+import { DIAS_SEMANA, DIAS_ENTREGA } from '@/domain/constants'
 import type { Empresa } from '@/domain/models'
 
 const message = useMessage()
 const { empresas, marcas } = useCatalog()
 
-const dayOptions = DIAS_ENTREGA.map((d) => ({ label: d, value: d }))
+const orderDayOptions = DIAS_SEMANA.map((d) => ({ label: d, value: d }))
+const deliveryDayOptions = DIAS_ENTREGA.map((d) => ({ label: d, value: d }))
 
 const modal = ref(false)
 const editId = ref<string | null>(null)
 const nombre = ref('')
 const tipo = ref<Empresa['tipo']>('Franquicia')
 const marcasTexto = ref('')
-const dias = ref<Empresa['diasLlegada']>([])
+const orderDays = ref<Empresa['orderDays']>([])
+const deliveryDays = ref<Empresa['deliveryDays']>([])
 
 function abrirNueva() {
   editId.value = null
   nombre.value = ''
   tipo.value = 'Franquicia'
   marcasTexto.value = ''
-  dias.value = []
+  orderDays.value = []
+  deliveryDays.value = []
   modal.value = true
 }
 
@@ -79,13 +87,15 @@ function abrirEditar(e: Empresa) {
   nombre.value = e.nombre
   tipo.value = e.tipo
   marcasTexto.value = marcas.items.filter((m) => m.empresaId === e.id).map((m) => m.nombre).join(', ')
-  dias.value = [...e.diasLlegada]
+  orderDays.value = [...e.orderDays]
+  deliveryDays.value = [...e.deliveryDays]
   modal.value = true
 }
 
 function guardar() {
   if (!nombre.value.trim()) return message.error('El nombre de la empresa es obligatorio')
-  if (dias.value.length === 0) return message.error('Seleccione al menos un día de llegada')
+  if (orderDays.value.length === 0) return message.error('Seleccione al menos un día de pedido')
+  if (deliveryDays.value.length === 0) return message.error('Seleccione al menos un día de entrega')
 
   const marcasNombres = marcasTexto.value.split(',').map((s) => s.trim()).filter(Boolean)
 
@@ -99,14 +109,16 @@ function guardar() {
         nombre: nombre.value.trim(),
         tipo: tipo.value,
         marcas: marcasNombres,
-        diasLlegada: dias.value
+        orderDays: orderDays.value,
+        deliveryDays: deliveryDays.value
       }
     : {
         id: uid('emp'),
         nombre: nombre.value.trim(),
         tipo: tipo.value,
         marcas: marcasNombres,
-        diasLlegada: dias.value
+        orderDays: orderDays.value,
+        deliveryDays: deliveryDays.value
       }
 
   if (editId.value) empresas.update(editId.value, empresaData)
@@ -158,11 +170,18 @@ const columnas = computed(() => [
     }
   },
   {
-    title: 'Días de llegada',
-    key: 'diasLlegada',
-    minWidth: 200,
+    title: 'Días de pedido',
+    key: 'orderDays',
+    minWidth: 190,
     render: (row: Empresa) =>
-      row.diasLlegada.map((d) => h(NTag, { key: d, size: 'small', type: 'success', bordered: true, style: { marginRight: '4px' } }, { default: () => d }))
+      row.orderDays.map((d) => h(NTag, { key: d, size: 'small', type: 'info', bordered: true, style: { marginRight: '4px' } }, { default: () => d }))
+  },
+  {
+    title: 'Días de entrega',
+    key: 'deliveryDays',
+    minWidth: 190,
+    render: (row: Empresa) =>
+      row.deliveryDays.map((d) => h(NTag, { key: d, size: 'small', type: 'success', bordered: true, style: { marginRight: '4px' } }, { default: () => d }))
   },
   {
     title: 'Acciones',

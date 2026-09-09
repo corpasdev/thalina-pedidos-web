@@ -31,13 +31,14 @@ const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
 
 export const EMPRESAS_COL: DbCollection<Empresa> = {
   table: 'companies',
-  toRow: (e) => ({ id: e.id, name: e.nombre, type: e.tipo, brands: e.marcas, arrival_days: e.diasLlegada }),
+toRow: (e) => ({ id: e.id, name: e.nombre, type: e.tipo, brands: e.marcas, order_days: e.orderDays, delivery_days: e.deliveryDays }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
     nombre: str(r.name) ?? '',
     tipo: (str(r.type) as TipoEmpresa) ?? 'Propia',
     marcas: arr(r.brands) as string[],
-    diasLlegada: arr(r.arrival_days) as DiaSemana[]
+    orderDays: arr(r.order_days) as DiaSemana[],
+    deliveryDays: arr(r.delivery_days) as DiaSemana[]
   })
 }
 
