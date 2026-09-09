@@ -59,19 +59,32 @@
         <motion.div
           class="mt-auto px-4 py-3 flex items-center gap-2.5 border-t transition-colors"
           :class="esOscuro ? 'border-white/10' : 'border-slate-200'"
-          :whileHover="{ x: 2 }"
-          :transition="{ type: 'spring', stiffness: 300, damping: 20 }"
         >
-          <n-avatar round size="small" color="#FFD700" class="text-slate-900 !text-xs font-bold shrink-0">B</n-avatar>
-          <div v-if="!collapsed" class="min-w-0 flex-1 leading-tight">
-            <div class="text-xs font-bold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">
-              Usuario
-            </div>
-            <div class="text-[10px] text-gray-500">Administrador</div>
-          </div>
-          <n-button quaternary circle size="small" class="hidden sm:inline-flex">
-            <template #icon><n-icon :component="ChevronDownOutline" /></template>
-          </n-button>
+          <n-dropdown
+            trigger="click"
+            placement="right-start"
+            :options="menuUsuario"
+            @select="accionUsuario"
+          >
+            <motion.div
+              class="flex items-center gap-2.5 cursor-pointer min-w-0 flex-1"
+              :whileHover="{ x: 2 }"
+              :transition="{ type: 'spring', stiffness: 300, damping: 20 }"
+            >
+              <n-avatar round size="small" color="#FFD700" class="text-slate-900 !text-xs font-bold shrink-0">
+                {{ inicial }}
+              </n-avatar>
+              <div v-if="!collapsed" class="min-w-0 flex-1 leading-tight">
+                <div class="text-xs font-bold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">
+                  {{ auth.usuario?.nombre || auth.usuario?.email || 'Usuario' }}
+                </div>
+                <div class="text-[10px] text-gray-500">{{ etiquetaRol(auth.rol ?? 'collaborator') }}</div>
+              </div>
+              <n-button quaternary circle size="small" class="hidden sm:inline-flex">
+                <template #icon><n-icon :component="ChevronDownOutline" /></template>
+              </n-button>
+            </motion.div>
+          </n-dropdown>
         </motion.div>
       </div>
     </n-layout-sider>
@@ -127,18 +140,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type Component } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, h, ref, type Component } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { motion } from 'motion-v'
 import {
   Grid, Storefront, People, Cube, Receipt, Wallet,
-  ChevronDownOutline, CartOutline, CreateOutline, Sunny, Moon
+  ChevronDownOutline, CartOutline, Sunny, Moon,
+  PersonAddOutline, LogOutOutline, ShieldCheckmarkOutline
 } from '@vicons/ionicons5'
 import { useTheme } from '@/composables/useTheme'
+import { useAuthStore } from '@/data/authStore'
+import { etiquetaRol } from '@/domain/constants'
 
 const route = useRoute()
+const router = useRouter()
 const collapsed = ref(false)
 const { esOscuro, cambiarModo } = useTheme()
+const auth = useAuthStore()
 
 interface MenuItem {
   label: string
@@ -146,19 +164,51 @@ interface MenuItem {
   icon: Component
 }
 
-const menuItems: MenuItem[] = [
+const menuItems = computed<MenuItem[]>(() => [
   { label: 'Dashboard', key: '/dashboard', icon: Grid },
   { label: 'Pedidos', key: '/pedidos', icon: Receipt },
-  { label: 'Borradores', key: '/borradores', icon: CreateOutline },
   { label: 'Egresos', key: '/egresos', icon: Wallet },
   { label: 'Proveedores', key: '/proveedores', icon: Storefront },
   { label: 'Vendedores', key: '/vendedores', icon: People },
-  { label: 'Productos', key: '/productos', icon: Cube }
-]
+  { label: 'Productos', key: '/productos', icon: Cube },
+  ...(auth.esAdmin ? [{ label: 'Usuarios', key: '/usuarios', icon: PersonAddOutline }] : [])
+])
+
+const inicial = computed(() => {
+  const nombre = auth.usuario?.nombre?.trim()
+  if (nombre && nombre.length > 0) return nombre.charAt(0).toUpperCase()
+  return (auth.usuario?.email || '?').charAt(0).toUpperCase()
+})
+
+const menuUsuario = computed(() => [
+  ...(auth.esAdmin
+    ? [
+        {
+          label: 'Usuarios',
+          key: 'usuarios',
+          icon: () => h(ShieldCheckmarkOutline)
+        }
+      ]
+    : []),
+  {
+    label: 'Cerrar sesión',
+    key: 'logout',
+    icon: () => h(LogOutOutline)
+  }
+])
+
+async function accionUsuario(key: string) {
+  if (key === 'logout') {
+    await auth.logout()
+    router.replace({ name: 'login' })
+  } else if (key === 'usuarios') {
+    router.push('/usuarios')
+  }
+}
 
 const activeKey = computed(() => {
   const path = route.path
-  const found = menuItems.find((m) => path === m.key || path.startsWith(`${m.key}/`))
+  const found = menuItems.value.find((m) => path === m.key || path.startsWith(`${m.key}/`))
   return typeof found?.key === 'string' ? found.key : '/dashboard'
 })
 
