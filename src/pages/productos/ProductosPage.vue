@@ -200,8 +200,6 @@ const columnas = computed(() => [
   { title: 'Marca', key: 'marca', minWidth: 120, render: (row: Producto) => h(NText, { depth: 2 }, { default: () => (row.marcaId ? nombreDeMarca(marcas.items, row.marcaId) : '—') }) },
   { title: 'Línea', key: 'linea', minWidth: 120, render: (row: Producto) => row.lineaId ? h(NTag, { size: 'small' }, { default: () => nombreDeLinea(lineas.items, row.lineaId) }) : h(NText, { depth: 3 }, { default: () => '—' }) },
   { title: 'Unidad', key: 'unidad', width: 90, render: (row: Producto) => h(NText, { depth: 2 }, { default: () => row.unidad ?? '—' }) },
-  { title: 'Compra', key: 'precioCompra', align: 'right' as const, render: (row: Producto) => row.precioCompra ? formatMoney(row.precioCompra) : '—' },
-  { title: 'Venta', key: 'precioVenta', align: 'right' as const, render: (row: Producto) => row.precioVenta ? formatMoney(row.precioVenta) : '—' },
   {
     title: 'Stock',
     key: 'stock',
