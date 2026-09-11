@@ -6,6 +6,8 @@
         <n-button type="primary" @click="abrirNueva">+ Nuevo proveedor</n-button>
       </PageHeader>
 
+      <n-statistic label="Proveedores" :value="empresas.items.length" />
+
       <n-data-table :columns="colEmpresas" :data="empresas.items" :pagination="{ pageSize: 10 }" />
 
       <n-modal
