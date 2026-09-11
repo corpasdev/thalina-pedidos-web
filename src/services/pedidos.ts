@@ -23,8 +23,8 @@ export type DuplicadoInfo = {
 }[]
 
 /**
- * Detecta repeticiones de un producto (por SKU normalizado) en pedidos activos.
- * Un mismo SKU no debe pedirse dos veces en el mismo ciclo.
+ * Detecta repeticiones de un producto (por referencia normalizada) en pedidos activos.
+ * Una misma referencia no debe pedirse dos veces en el mismo ciclo.
  */
 export function detectarDuplicados(
   productos: Producto[],
@@ -33,25 +33,25 @@ export function detectarDuplicados(
   empresas: Empresa[]
 ): DuplicadoInfo {
   const activos = pedidos.filter((p) => p.estado !== 'Cancelado' && p.estado !== 'Recibido')
-  const skuEnPedidos = new Map<string, Set<string>>()
-  const porSku = new Map<string, { numero: string; fecha: string; empresa: string }[]>()
+  const refsEnPedidos = new Map<string, Set<string>>()
+  const porRef = new Map<string, { numero: string; fecha: string; empresa: string }[]>()
 
   activos.forEach((pedido) => {
     const empresa = empresas.find((e) => e.id === pedido.empresaId)?.nombre ?? '—'
     pedido.lineas.forEach((l) => {
       const producto = productos.find((p) => p.id === l.productoId)
       if (!producto) return
-      const skuNorm = producto.sku.toLowerCase().trim()
-      if (!skuEnPedidos.has(skuNorm)) skuEnPedidos.set(skuNorm, new Set())
-      if (!porSku.has(skuNorm)) porSku.set(skuNorm, [])
-      porSku.get(skuNorm)!.push({ numero: pedido.numero, fecha: pedido.fechaPedido, empresa })
+      const refNorm = producto.referencia.toLowerCase().trim()
+      if (!refsEnPedidos.has(refNorm)) refsEnPedidos.set(refNorm, new Set())
+      if (!porRef.has(refNorm)) porRef.set(refNorm, [])
+      porRef.get(refNorm)!.push({ numero: pedido.numero, fecha: pedido.fechaPedido, empresa })
     })
   })
 
   const info: DuplicadoInfo = []
-  porSku.forEach((pedidosAnteriores, sku) => {
+  porRef.forEach((pedidosAnteriores, ref) => {
     if (pedidosAnteriores.length < 2) return
-    const producto = productos.find((p) => p.sku.toLowerCase().trim() === sku)
+    const producto = productos.find((p) => p.referencia.toLowerCase().trim() === ref)
     if (!producto) return
     const cant = pedidosAnteriores.length
     info.push({

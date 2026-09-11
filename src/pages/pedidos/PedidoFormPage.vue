@@ -105,7 +105,7 @@ import { Add as AddIcon, Close as CloseIcon } from '@vicons/ionicons5'
 import { useMessage, useDialog } from 'naive-ui'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { useCatalog } from '@/composables/useCatalog'
-import { uid, formatMoney, normalizeSku, fechaISO } from '@/domain/utils'
+import { uid, formatMoney, normalizeReferencia, fechaISO } from '@/domain/utils'
 import { ESTADOS_PEDIDO } from '@/domain/constants'
 import { calcularTotalPedido, siguienteNumeroPedido, nombreDeLinea } from '@/services/pedidos'
 import type { Pedido, LineaPedido, EstadoPedido } from '@/domain/models'
@@ -184,33 +184,33 @@ const advertencias = computed(() => {
   const activos = pedidos.items.filter(
     (p) => p.estado !== 'Recibido' && p.estado !== 'Cancelado' && p.id !== editando.value?.id
   )
-  const skuMap = new Map<string, { producto: string; pedidos: string[] }>()
+  const refMap = new Map<string, { producto: string; pedidos: string[] }>()
   activos.forEach((p) => {
     p.lineas.forEach((l) => {
       const prod = productos.items.find((pp) => pp.id === l.productoId)
       if (!prod) return
-      const sku = normalizeSku(prod.sku)
-      if (!skuMap.has(sku)) skuMap.set(sku, { producto: prod.nombre, pedidos: [] })
-      skuMap.get(sku)!.pedidos.push(p.numero)
+      const ref = normalizeReferencia(prod.referencia)
+      if (!refMap.has(ref)) refMap.set(ref, { producto: prod.nombre, pedidos: [] })
+      refMap.get(ref)!.pedidos.push(p.numero)
     })
   })
   const repetidosEnBorrador = new Map<string, number>()
   lineasDraft.value.forEach((l) => {
     const prod = productos.items.find((pp) => pp.id === l.productoId)
     if (!prod) return
-    const sku = normalizeSku(prod.sku)
-    repetidosEnBorrador.set(sku, (repetidosEnBorrador.get(sku) ?? 0) + 1)
+    const ref = normalizeReferencia(prod.referencia)
+    repetidosEnBorrador.set(ref, (repetidosEnBorrador.get(ref) ?? 0) + 1)
   })
   const warnings: { nombre: string; yaExiste: string[]; vecesEnBorrador: number }[] = []
   const vistos = new Set<string>()
   lineasDraft.value.forEach((l) => {
     const prod = productos.items.find((pp) => pp.id === l.productoId)
     if (!prod) return
-    const sku = normalizeSku(prod.sku)
-    if (vistos.has(sku)) return
-    vistos.add(sku)
-    const coincide = skuMap.get(sku)
-    const veces = repetidosEnBorrador.get(sku) ?? 1
+    const ref = normalizeReferencia(prod.referencia)
+    if (vistos.has(ref)) return
+    vistos.add(ref)
+    const coincide = refMap.get(ref)
+    const veces = repetidosEnBorrador.get(ref) ?? 1
     if (!coincide && veces <= 1) return
     warnings.push({ nombre: prod.nombre, yaExiste: coincide?.pedidos ?? [], vecesEnBorrador: veces })
   })

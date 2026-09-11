@@ -7,9 +7,9 @@
     <div class="mb-4 flex items-center gap-6 text-sm text-gray-400">
       <n-tooltip>
         <template #trigger>
-          <span class="cursor-help underline decoration-dotted">ℹ️ Control por SKU</span>
+          <span class="cursor-help underline decoration-dotted">ℹ️ Control por referencia</span>
         </template>
-        El SKU normalizado permite detectar el mismo producto pedido a varias marcas/empresas.
+        La referencia normalizada permite detectar el mismo producto pedido a varias marcas/empresas.
       </n-tooltip>
       <n-statistic label="Productos" :value="productos.items.length" />
     </div>
@@ -28,7 +28,16 @@
         <div class="flex flex-col gap-2">
           <span class="text-xs text-gray-400">Identificación</span>
           <n-input v-model:value="nombre" placeholder="Nombre del producto" />
-          <n-input v-model:value="sku" placeholder="SKU (código normalizado, ej. ACEITE-1LT)" clearable />
+          <n-input v-model:value="referencia" placeholder="Referencia (normalizada, ej. ACEITE-1LT)" clearable />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <span class="text-xs text-gray-400">Clasificación</span>
+          <n-space>
+            <n-select v-model:value="categoria" :options="categoriaOptions" placeholder="Categoría" clearable class="flex-1" />
+            <n-input v-model:value="almacen" placeholder="Almacén" clearable class="flex-1" />
+          </n-space>
+          <n-input v-model:value="codigoBarra" placeholder="Código de barras" clearable />
         </div>
 
         <div class="flex flex-col gap-2">
@@ -62,7 +71,8 @@ import { computed, h, ref } from 'vue'
 import { NText, NTag, NButton, NSpace, NPopconfirm, useMessage, useDialog } from 'naive-ui'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { useCatalog } from '@/composables/useCatalog'
-import { uid, formatMoney, normalizeSku } from '@/domain/utils'
+import { uid, formatMoney, normalizeReferencia } from '@/domain/utils'
+import { CATEGORIAS } from '@/domain/constants'
 import { nombreDeEmpresa, nombreDeLinea, nombreDeMarca } from '@/services/pedidos'
 import type { Producto } from '@/domain/models'
 
@@ -72,11 +82,15 @@ const { productos, empresas, marcas, lineas } = useCatalog()
 
 const UNIDADES = ['unidad', 'caja', 'paquete', 'kilo', 'litro', 'bulto', 'docena', 'galon']
 const unidadOptions = UNIDADES.map((u) => ({ label: u, value: u }))
+const categoriaOptions = CATEGORIAS.map((c) => ({ label: c, value: c }))
 
 const modal = ref(false)
 const editId = ref<string | null>(null)
 const nombre = ref('')
-const sku = ref('')
+const referencia = ref('')
+const codigoBarra = ref('')
+const almacen = ref('')
+const categoria = ref<import('@/domain/models').Categoria | null>(null)
 const empresaId = ref<string | null>(null)
 const marcaId = ref<string | null>(null)
 const lineaId = ref<string | null>(null)
@@ -93,7 +107,10 @@ const lineaOptions = computed(() => lineas.items.filter((l) => l.empresaId === e
 function abrirNueva() {
   editId.value = null
   nombre.value = ''
-  sku.value = ''
+  referencia.value = ''
+  codigoBarra.value = ''
+  almacen.value = ''
+  categoria.value = null
   empresaId.value = null
   marcaId.value = null
   lineaId.value = null
@@ -108,7 +125,10 @@ function abrirNueva() {
 function abrirEditar(p: Producto) {
   editId.value = p.id
   nombre.value = p.nombre
-  sku.value = p.sku
+  referencia.value = p.referencia
+  codigoBarra.value = p.codigoBarra ?? ''
+  almacen.value = p.almacen ?? ''
+  categoria.value = p.categoria ?? null
   empresaId.value = p.empresaId
   marcaId.value = p.marcaId ?? null
   lineaId.value = p.lineaId ?? null
@@ -121,20 +141,23 @@ function abrirEditar(p: Producto) {
 }
 
 function guardar() {
-  if (!nombre.value.trim() || !sku.value.trim() || !empresaId.value) {
-    return message.error('Nombre, SKU y empresa son obligatorios')
+  if (!nombre.value.trim() || !referencia.value.trim() || !empresaId.value) {
+    return message.error('Nombre, referencia y empresa son obligatorios')
   }
-  const norm = normalizeSku(sku.value)
-  if (!norm) return message.error('SKU inválido')
+  const norm = normalizeReferencia(referencia.value)
+  if (!norm) return message.error('Referencia inválida')
 
-  const duplicado = productos.items.find((p) => p.id !== editId.value && normalizeSku(p.sku) === norm)
+  const duplicado = productos.items.find((p) => p.id !== editId.value && normalizeReferencia(p.referencia) === norm)
   const data: Producto = {
     id: editId.value ?? uid('prd'),
     nombre: nombre.value.trim(),
-    sku: norm,
+    referencia: norm,
+    codigoBarra: codigoBarra.value.trim() || undefined,
+    almacen: almacen.value.trim() || undefined,
     empresaId: empresaId.value,
     marcaId: marcaId.value ?? undefined,
     lineaId: lineaId.value ?? undefined,
+    categoria: categoria.value ?? undefined,
     unidad: unidad.value ?? 'unidad',
     precioCompra: precioCompra.value ?? undefined,
     precioVenta: precioVenta.value ?? undefined,
@@ -151,8 +174,8 @@ function guardar() {
 
   if (duplicado) {
     dialog.warning({
-      title: 'SKU ya registrado',
-      content: `"${duplicado.nombre}" (${nombreDeEmpresa(empresas.items, duplicado.empresaId)}) ya usa el SKU "${norm}". ¿Guardar de todos modos?`,
+      title: 'Referencia ya registrada',
+      content: `"${duplicado.nombre}" (${nombreDeEmpresa(empresas.items, duplicado.empresaId)}) ya usa la referencia "${norm}". ¿Guardar de todos modos?`,
       positiveText: 'Guardar igual',
       negativeText: 'Cancelar',
       onPositiveClick: commit
@@ -168,8 +191,11 @@ function eliminar(p: Producto) {
 }
 
 const columnas = computed(() => [
-  { title: 'Producto', key: 'nombre', minWidth: 180, render: (row: Producto) => h(NText, { strong: true }, { default: () => row.nombre }) },
-  { title: 'SKU', key: 'sku', width: 130, render: (row: Producto) => h(NText, { depth: 3, code: true }, { default: () => row.sku }) },
+  { title: 'Producto', key: 'nombre', minWidth: 160, render: (row: Producto) => h(NText, { strong: true }, { default: () => row.nombre }) },
+  { title: 'Referencia', key: 'referencia', width: 140, render: (row: Producto) => h(NText, { depth: 3, code: true }, { default: () => row.referencia }) },
+  { title: 'Cód. barra', key: 'codigoBarra', width: 110, render: (row: Producto) => h(NText, { depth: 2 }, { default: () => row.codigoBarra ?? '—' }) },
+  { title: 'Almacén', key: 'almacen', width: 100, render: (row: Producto) => h(NText, { depth: 2 }, { default: () => row.almacen ?? '—' }) },
+  { title: 'Categoría', key: 'categoria', minWidth: 110, render: (row: Producto) => row.categoria ? h(NTag, { size: 'small' }, { default: () => row.categoria }) : h(NText, { depth: 3 }, { default: () => '—' }) },
   { title: 'Empresa', key: 'empresa', minWidth: 150, render: (row: Producto) => h(NText, { depth: 2 }, { default: () => nombreDeEmpresa(empresas.items, row.empresaId) }) },
   { title: 'Marca', key: 'marca', minWidth: 120, render: (row: Producto) => h(NText, { depth: 2 }, { default: () => (row.marcaId ? nombreDeMarca(marcas.items, row.marcaId) : '—') }) },
   { title: 'Línea', key: 'linea', minWidth: 120, render: (row: Producto) => row.lineaId ? h(NTag, { size: 'small' }, { default: () => nombreDeLinea(lineas.items, row.lineaId) }) : h(NText, { depth: 3 }, { default: () => '—' }) },

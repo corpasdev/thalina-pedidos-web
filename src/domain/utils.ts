@@ -46,8 +46,8 @@ export function fechaISO(): string {
   return new Date().toISOString()
 }
 
-export function normalizeSku(sku: string): string {
-  return sku.trim().toLowerCase().replace(/\s+/g, '-')
+export function normalizeReferencia(referencia: string): string {
+  return referencia.trim().toLowerCase().replace(/\s+/g, '-')
 }
 
 export function slug(text: string): string {

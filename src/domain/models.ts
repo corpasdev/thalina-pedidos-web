@@ -43,15 +43,20 @@ export interface Marca {
   empresaId: ID
 }
 
-/** Producto unit que se pide. Normalizado por codigoBarras o SKU para detectar duplicados entre marcas. */
+/** Producto unit que se pide. Normalizado por referencia para detectar duplicados entre marcas. */
 export interface Producto {
   id: ID
   nombre: string
-  /** SKU único usado para detectar productos iguales entre vendedores/marcas */
-  sku: string
+  /** Referencia normalizada usada para detectar productos iguales entre vendedores/marcas */
+  referencia: string
+  /** Código de barras del producto (EAN, UPC, ...) */
+  codigoBarra?: string
+  /** Almacén donde se ubica el producto */
+  almacen?: string
   empresaId: ID
   marcaId?: ID
   lineaId?: ID
+  categoria?: Categoria
   unidad?: string
   precioCompra?: number
   precioVenta?: number
@@ -99,8 +104,8 @@ export interface Duplicado {
   pedidoId: ID
   numero: string
   fecha: string
-  /** Productos repetidos: sku/nombre y dónde ya se pidió */
-  coincidencias: { sku: string; productoNombre: string; pedidoAnterior: string; pedidoAnteriorNumero: string }[]
+  /** Productos repetidos: referencia/nombre y dónde ya se pidió */
+  coincidencias: { referencia: string; productoNombre: string; pedidoAnterior: string; pedidoAnteriorNumero: string }[]
   /** True si se confirma a pesar del aviso */
   confirmado: boolean
 }

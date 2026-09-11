@@ -63,7 +63,7 @@ const empresaFilterOptions = computed(() => [
 ])
 
 const duplicados = computed(() => detectarDuplicados(productos.items, pedidos.items, marcas.items, empresas.items))
-const skusEnDuplicados = computed(() => new Set(duplicados.value.map((d) => d.producto.sku.toLowerCase())))
+const refsEnDuplicados = computed(() => new Set(duplicados.value.map((d) => d.producto.referencia.toLowerCase())))
 
 const rows = computed(() =>
   pedidos.items
@@ -87,7 +87,7 @@ const rows = computed(() =>
 const tieneDuplicado = (row: (typeof rows.value)[number]) =>
   row.lineas.some((l) => {
     const pr = productos.items.find((pp) => pp.id === l.productoId)
-    return pr ? skusEnDuplicados.value.has(pr.sku.toLowerCase()) : false
+    return pr ? refsEnDuplicados.value.has(pr.referencia.toLowerCase()) : false
   })
 
 const resumen = computed(() => ({
