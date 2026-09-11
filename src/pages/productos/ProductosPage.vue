@@ -1,18 +1,10 @@
 <template>
   <div>
-    <PageHeader title="Productos">
+    <PageHeader>
       <n-button type="primary" @click="abrirNueva">+ Nuevo producto</n-button>
     </PageHeader>
 
-    <div class="mb-4 flex items-center gap-6 text-sm text-gray-400">
-      <n-tooltip>
-        <template #trigger>
-          <span class="cursor-help underline decoration-dotted">ℹ️ Control por referencia</span>
-        </template>
-        La referencia normalizada permite detectar el mismo producto pedido a varias marcas/empresas.
-      </n-tooltip>
-      <n-statistic label="Productos" :value="productos.items.length" />
-    </div>
+    <n-statistic label="Productos" :value="productos.items.length" />
 
     <n-data-table :columns="columnas" :data="productos.items" :pagination="{ pageSize: 10 }" />
 

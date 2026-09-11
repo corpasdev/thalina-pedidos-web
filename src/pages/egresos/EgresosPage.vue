@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-5">
-    <PageHeader title="Egresos de pedidos">
+    <PageHeader>
       <n-button type="primary" @click="abrirNuevo">+ Contabilizar egreso</n-button>
     </PageHeader>
 

@@ -2,15 +2,9 @@
   <div class="flex flex-col gap-8">
     <!-- Proveedores: empresas compositoras de marcas -->
     <div>
-      <PageHeader title="Proveedores">
+      <PageHeader>
         <n-button type="primary" @click="abrirNueva">+ Nuevo proveedor</n-button>
       </PageHeader>
-
-<div class="mb-4 text-sm text-gray-400">
-        Un proveedor puede ser una <strong>marca</strong> (productos propios) o una <strong>empresa compuesta por varias marcas</strong>
-        (distribuidor / franquicia que trae Nestlé, Alpina, Bimbo…). Las marcas se consideran parte del proveedor y aparecen en la columna
-        <strong>"Marcas que provee"</strong>; no se gestionan por aparte.
-      </div>
 
       <n-data-table :columns="colEmpresas" :data="empresas.items" :pagination="{ pageSize: 10 }" />
 

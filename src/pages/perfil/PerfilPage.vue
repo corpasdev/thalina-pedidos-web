@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-xl flex flex-col gap-5">
-    <PageHeader title="Mi perfil" />
 
     <div
       class="rounded-2xl border shadow-lg p-6 flex flex-col gap-6 transition-colors"
@@ -62,7 +61,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useMessage } from 'naive-ui'
-import PageHeader from '@/components/common/PageHeader.vue'
+
 import { useAuthStore } from '@/data/authStore'
 import { useTheme } from '@/composables/useTheme'
 import { etiquetaRol } from '@/domain/constants'

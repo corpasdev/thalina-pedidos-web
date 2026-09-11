@@ -1,18 +1,8 @@
 <template>
   <div>
-    <PageHeader title="Marcas comerciales">
+    <PageHeader>
       <n-button type="primary" @click="abrirNueva">+ Nueva marca</n-button>
     </PageHeader>
-
-    <div class="mb-4 flex items-center gap-2 text-sm text-gray-400">
-      Las marcas se vinculan a una empresa. Las franquicias pueden traer varias marcas; las empresas propias usan su propia marca.
-      <n-tooltip>
-        <template #trigger>
-          <span class="inline-grid place-items-center w-5 h-5 rounded-full bg-slate-800 text-gray-300 text-xs cursor-help">?</span>
-        </template>
-        Ej: la franquicia "Distribuidora Andina" distribuye las marcas Nestlé, Alpina y Bimbo.
-      </n-tooltip>
-    </div>
 
     <n-data-table :columns="columnas" :data="marcas.items" :pagination="{ pageSize: 10 }" />
 

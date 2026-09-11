@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageHeader title="Empresas y marcas">
+    <PageHeader>
       <n-button type="primary" @click="abrirNueva">+ Nueva empresa</n-button>
     </PageHeader>
 

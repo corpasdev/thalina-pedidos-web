@@ -221,10 +221,13 @@ const activeKey = computed(() => {
 })
 
 const tituloVista = computed(() => {
+  const p = route.path
+  if (p === '/empresas') return 'Empresas y marcas'
+  if (p === '/marcas') return 'Marcas comerciales'
   if (activeKey.value === '/dashboard') return 'Panel de administración de pedidos'
   const item = menuItems.value.find((m) => m.key === activeKey.value)
   if (item) return item.label
-  if (activeKey.value === '/perfil') return 'Mi perfil'
+  if (p === '/perfil') return 'Mi perfil'
   return 'Panel de administración de pedidos'
 })
 

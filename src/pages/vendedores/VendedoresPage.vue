@@ -1,12 +1,8 @@
 <template>
   <div>
-    <PageHeader title="Vendedores">
+    <PageHeader>
       <n-button type="primary" @click="abrirNueva">+ Nuevo vendedor</n-button>
     </PageHeader>
-
-    <div class="mb-4 text-sm text-gray-400">
-      Cada vendedor de una marca/franquicia cubre una línea diferente de productos (uno trae alimentos, otro aseo, etc.).
-    </div>
 
     <n-data-table :columns="columnas" :data="vendedores.items" :pagination="{ pageSize: 10 }" />
 

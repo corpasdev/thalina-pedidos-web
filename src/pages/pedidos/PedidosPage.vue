@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-5">
-    <PageHeader title="Pedidos">
+    <PageHeader>
       <n-button type="primary" @click="$router.push('/pedidos/nuevo')">+ Nuevo pedido</n-button>
     </PageHeader>
 

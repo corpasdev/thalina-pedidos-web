@@ -1,13 +1,8 @@
 <template>
   <div class="flex flex-col gap-5">
-    <PageHeader title="Usuarios">
+    <PageHeader>
       <n-button type="primary" :disabled="!auth.esAdmin" @click="abrirNuevo">+ Nuevo usuario</n-button>
     </PageHeader>
-
-    <div class="mb-2 text-sm text-gray-400">
-      <strong>Administrador</strong> gestiona usuarios y roles. <strong>Colaborador</strong> usa la plataforma
-      (pedidos, egresos, catálogo) sin acceso a esta sección.
-    </div>
 
     <n-data-table :columns="columnas" :data="usuarios.items" :pagination="{ pageSize: 10 }" :loading="cargando" />
 

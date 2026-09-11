@@ -5,13 +5,13 @@
     :animate="{ opacity: 1, y: 0 }"
     :transition="{ duration: 0.22, ease: 'easeOut' }"
   >
-    <div class="flex items-center gap-3">
+    <div v-if="title || back" class="flex items-center gap-3">
       <button v-if="back" @click="emit('back')" class="text-gray-400 hover:text-[#FFD700] text-lg px-2" aria-label="Volver">
         ←
       </button>
-      <h1 class="text-2xl font-bold transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ title }}</h1>
+      <h1 v-if="title" class="text-2xl font-bold transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ title }}</h1>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="relative flex items-center gap-3">
       <slot />
     </div>
   </motion.div>
@@ -22,6 +22,6 @@ import { motion } from 'motion-v'
 import { useTheme } from '@/composables/useTheme'
 
 const { esOscuro } = useTheme()
-defineProps<{ title: string; back?: boolean }>()
+defineProps<{ title?: string; back?: boolean }>()
 const emit = defineEmits<{ (e: 'back'): void }>()
 </script>
