@@ -69,16 +69,13 @@ let sql = `-- ==================================================================
 
 sql += `BEGIN;\n\n`
 sql += `-- PROVEEDORES (companies)\n`
-sql += `INSERT INTO public.companies (id, name, type, brands, order_days, delivery_days)\nVALUES\n`
+sql += `INSERT INTO public.companies (id, name)\nVALUES\n`
 const empValues = provedoresFinal.map((p, i) => {
   const id = uidEmp(i)
   const name = escSQL(p)
-  return `  (${escSQL(id)}, ${name}, 'Franquicia', '[]'::jsonb, '[]'::jsonb, '[]'::jsonb)`
+  return `  (${escSQL(id)}, ${name})`
 })
 sql += empValues.join(',\n') + '\nON CONFLICT (id) DO NOTHING;\n\n'
-
-sql += `-- PRODUCTOS (products)\n`
-sql += `INSERT INTO public.products (id, name, referencia, codigo_barras, almacen, company_id, brand_id, product_line_id, categoria, unit, purchase_price, sale_price, stock, min_stock)\nVALUES\n`
 
 const prdValues = rows.map(r => {
   const id = escSQL(uidPrd(r.csvId))
