@@ -4,6 +4,7 @@
     :theme-overrides="overrides"
     :locale="esES"
     :date-locale="dateEsES"
+    size="large"
   >
     <n-global-style />
     <n-message-provider placement="bottom-right">
