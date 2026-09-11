@@ -1,6 +1,5 @@
 <template>
-  <div class="flex justify-center p-4 md:p-8">
-    <div class="w-full max-w-[1020px] flex flex-col gap-4 md:min-h-[calc(100dvh-168px)]">
+  <div class="w-full flex flex-col gap-4 md:min-h-[calc(100dvh-168px)]">
       <!-- Header card -->
       <motion.div
         class="rounded-2xl overflow-hidden border shadow-lg transition-colors"
@@ -219,7 +218,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
