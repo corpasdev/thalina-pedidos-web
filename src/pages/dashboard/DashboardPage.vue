@@ -32,10 +32,10 @@
       </motion.div>
 
       <!-- Body: calendar + detail cards -->
-      <div class="grid grid-cols-1 md:grid-cols-[55%_45%] gap-4 md:flex-1 md:min-h-0">
+      <div class="grid grid-cols-1 md:grid-cols-[minmax(0,11fr)_minmax(0,9fr)] gap-4 md:flex-1 md:min-h-0">
         <!-- Card: Calendario -->
         <motion.section
-          class="rounded-2xl overflow-hidden border shadow-lg flex flex-col p-6 md:p-8 min-h-0 transition-colors"
+          class="rounded-2xl overflow-hidden border shadow-lg flex flex-col p-6 md:p-8 min-h-0 min-w-0 transition-colors"
           :class="esOscuro ? 'border-slate-800 bg-[#1f2937]' : 'border-slate-200 bg-white'"
           :initial="{ opacity: 0, y: 12 }"
           :animate="{ opacity: 1, y: 0 }"
@@ -143,7 +143,7 @@
         </motion.section>
 
         <!-- Right column: stacked cards -->
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 min-w-0">
           <!-- Card: Egresos hoy -->
           <motion.div
             class="relative rounded-2xl overflow-hidden border shadow-lg p-5 transition-colors"
