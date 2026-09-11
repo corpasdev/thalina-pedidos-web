@@ -71,8 +71,9 @@
               :whileHover="{ x: 2 }"
               :transition="{ type: 'spring', stiffness: 300, damping: 20 }"
             >
-              <n-avatar round size="small" color="#FFD700" class="text-slate-900 !text-xs font-bold shrink-0">
-                {{ inicial }}
+              <n-avatar round size="small" color="#FFD700" :src="auth.usuario?.avatarUrl || undefined" class="text-slate-900 !text-xs font-bold shrink-0">
+                <template v-if="!auth.usuario?.avatarUrl">{{ inicial }}</template>
+                <template #fallback>{{ inicial }}</template>
               </n-avatar>
               <div v-if="!collapsed" class="min-w-0 flex-1 leading-tight">
                 <div class="text-xs font-bold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">
@@ -96,7 +97,7 @@
         :class="esOscuro ? '!bg-slate-950/70' : '!bg-white/70'"
       >
         <span class="text-sm font-bold truncate min-w-0 transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">
-          Panel de administración de pedidos
+          {{ tituloVista }}
         </span>
         <div class="flex items-center gap-2 shrink-0">
           <n-tooltip>
@@ -146,7 +147,7 @@ import { motion } from 'motion-v'
 import {
   Grid, Storefront, People, Cube, Receipt, Wallet,
   ChevronDownOutline, CartOutline, Sunny, Moon,
-  PersonAddOutline, LogOutOutline, ShieldCheckmarkOutline
+  PersonAddOutline, PersonCircleOutline, LogOutOutline, ShieldCheckmarkOutline
 } from '@vicons/ionicons5'
 import { useTheme } from '@/composables/useTheme'
 import { useAuthStore } from '@/data/authStore'
@@ -191,6 +192,11 @@ const menuUsuario = computed(() => [
       ]
     : []),
   {
+    label: 'Mi perfil',
+    key: 'perfil',
+    icon: () => h(PersonCircleOutline)
+  },
+  {
     label: 'Cerrar sesión',
     key: 'logout',
     icon: () => h(LogOutOutline)
@@ -203,6 +209,8 @@ async function accionUsuario(key: string) {
     router.replace({ name: 'login' })
   } else if (key === 'usuarios') {
     router.push('/usuarios')
+  } else if (key === 'perfil') {
+    router.push('/perfil')
   }
 }
 
@@ -210,6 +218,14 @@ const activeKey = computed(() => {
   const path = route.path
   const found = menuItems.value.find((m) => path === m.key || path.startsWith(`${m.key}/`))
   return typeof found?.key === 'string' ? found.key : '/dashboard'
+})
+
+const tituloVista = computed(() => {
+  if (activeKey.value === '/dashboard') return 'Panel de administración de pedidos'
+  const item = menuItems.value.find((m) => m.key === activeKey.value)
+  if (item) return item.label
+  if (activeKey.value === '/perfil') return 'Mi perfil'
+  return 'Panel de administración de pedidos'
 })
 
 function alternarTema() {

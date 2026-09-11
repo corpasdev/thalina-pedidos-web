@@ -39,7 +39,8 @@ export const PROFILES_COL: DbCollection<Usuario> = {
     full_name: u.nombre,
     role_name: u.rol,
     active: u.activo,
-    created_at: u.creadoEn
+    created_at: u.creadoEn,
+    avatar_url: u.avatarUrl ?? null
   }),
   fromRow: (r) => ({
     id: str(r.id) ?? '',
@@ -48,7 +49,8 @@ export const PROFILES_COL: DbCollection<Usuario> = {
     nombre: str(r.full_name) ?? '',
     rol: (str(r.role_name) as Rol) ?? 'collaborator',
     activo: r.active !== undefined ? Boolean(r.active) : true,
-    creadoEn: str(r.created_at) ?? ''
+    creadoEn: str(r.created_at) ?? '',
+    avatarUrl: str(r.avatar_url)
   })
 }
 

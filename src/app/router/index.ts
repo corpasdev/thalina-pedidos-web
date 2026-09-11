@@ -37,6 +37,7 @@ const router = createRouter({
         { path: 'pedidos/nuevo', name: 'pedido-nuevo', component: () => import('@/pages/pedidos/PedidoFormPage.vue') },
         { path: 'pedidos/:id/editar', name: 'pedido-editar', component: () => import('@/pages/pedidos/PedidoFormPage.vue'), props: true },
         { path: 'egresos', name: 'egresos', component: () => import('@/pages/egresos/EgresosPage.vue') },
+        { path: 'perfil', name: 'perfil', component: () => import('@/pages/perfil/PerfilPage.vue') },
         { path: 'usuarios', name: 'usuarios', component: () => import('@/pages/usuarios/UsuariosPage.vue'), meta: { roles: ['admin'] } }
       ]
     },

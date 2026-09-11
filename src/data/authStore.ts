@@ -5,9 +5,25 @@ import { PROFILES_COL } from '@/lib/supabaseSchema'
 import type { Rol, Usuario } from '@/domain/models'
 import { useUsuarioStore } from './stores'
 
+const AVATAR_BUCKET = 'avatars'
+
 const restablecerSesion = async (session: { access_token: string; refresh_token: string } | null) => {
   if (!session) return
   await supabase.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token })
+}
+
+/** Extrae la ruta dentro del bucket a partir de una URL pública de avatar. */
+function rutaDeUrlAvatar(urlGuardada: string): string | null {
+  try {
+    const u = new URL(urlGuardada)
+    const parts = u.pathname.split('/')
+    const idx = parts.indexOf(AVATAR_BUCKET)
+    if (idx < 0) return null
+    const objeto = parts.slice(idx + 1).filter(Boolean).join('/')
+    return objeto || null
+  } catch {
+    return null
+  }
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -80,6 +96,60 @@ export const useAuthStore = defineStore('auth', () => {
     usuario.value = null
   }
 
+  /** Actualiza datos básicos del perfil del usuario logueado y refresca el estado local. */
+  async function actualizarPerfil(patch: Partial<Pick<Usuario, 'nombre' | 'username' | 'avatarUrl'>>) {
+    const id = usuario.value?.id
+    if (!id) throw new Error('No hay usuario autenticado')
+    const row: Record<string, unknown> = {}
+    if (patch.nombre !== undefined) row.full_name = patch.nombre.trim()
+    if (patch.username !== undefined) row.username = patch.username.trim() || null
+    if ('avatarUrl' in patch) row.avatar_url = patch.avatarUrl || null
+    if (Object.keys(row).length === 0) return
+
+    const { error } = await supabase.from(PROFILES_COL.table).update(row).eq('id', id)
+    if (error) throw error
+    await cargarPerfil(id)
+
+    const store = useUsuarioStore()
+    const actual = store.items.find((u) => u.id === id)
+    if (actual) await store.update(id, patch, { throwOnError: false })
+  }
+
+  async function subirAvatar(file: File): Promise<string> {
+    const id = usuario.value?.id
+    if (!id) throw new Error('No hay usuario autenticado')
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase()
+    const path = `${id}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from(AVATAR_BUCKET).upload(path, file, {
+      upsert: true,
+      contentType: file.type
+    })
+    if (error) throw error
+    const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path)
+    return data.publicUrl
+  }
+
+  /** Sube la foto, elimina la anterior (si era del bucket) y actualiza el perfil. */
+  async function cambiarAvatar(file: File) {
+    const anterior = usuario.value?.avatarUrl
+    const url = await subirAvatar(file)
+    await actualizarPerfil({ avatarUrl: url })
+    if (anterior) {
+      const objeto = rutaDeUrlAvatar(anterior)
+      if (objeto) await supabase.storage.from(AVATAR_BUCKET).remove([objeto])
+    }
+  }
+
+  /** Quita la foto del perfil y elimina el archivo del bucket. */
+  async function quitarAvatar() {
+    const anterior = usuario.value?.avatarUrl
+    await actualizarPerfil({ avatarUrl: undefined })
+    if (anterior) {
+      const objeto = rutaDeUrlAvatar(anterior)
+      if (objeto) await supabase.storage.from(AVATAR_BUCKET).remove([objeto])
+    }
+  }
+
   /**
    * Crea un usuario (admin). Protege la sesión actual: guarda la sesión del
    * admin, hace signUp (que autologuera al nuevo usuario), restaura la sesión
@@ -131,5 +201,19 @@ export const useAuthStore = defineStore('auth', () => {
     return requiereConfirmacion
   }
 
-  return { usuario, cargando, autenticado, rol, esAdmin, init, login, logout, crearUsuario }
+  return {
+    usuario,
+    cargando,
+    autenticado,
+    rol,
+    esAdmin,
+    init,
+    login,
+    logout,
+    crearUsuario,
+    actualizarPerfil,
+    subirAvatar,
+    cambiarAvatar,
+    quitarAvatar
+  }
 })

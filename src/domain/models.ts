@@ -124,4 +124,6 @@ export interface Usuario {
   rol: Rol
   activo: boolean
   creadoEn: string
+  /** URL pública de la foto de perfil (storage "avatars") */
+  avatarUrl?: string
 }
