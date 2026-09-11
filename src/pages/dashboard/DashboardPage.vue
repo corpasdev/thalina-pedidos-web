@@ -181,7 +181,7 @@
             </router-link>
           </motion.div>
 
-          <!-- Card: Pedidos pagados hoy -->
+          <!-- Card: Proveedores del día -->
           <motion.div
             class="rounded-2xl overflow-hidden border shadow-lg p-5 transition-colors"
             :class="esOscuro ? 'border-slate-800 bg-[#1f2937]' : 'border-slate-200 bg-white'"
@@ -190,49 +190,29 @@
             :transition="{ duration: 0.3, delay: 0.16, ease: 'easeOut' }"
           >
             <div class="flex items-center justify-between">
-              <div class="text-[11px] font-semibold uppercase tracking-wider transition-colors" :class="esOscuro ? 'text-white/60' : 'text-slate-500'">Pedidos pagados hoy</div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider transition-colors" :class="esOscuro ? 'text-white/60' : 'text-slate-500'">Proveedores del día</div>
               <router-link
-                to="/pedidos"
+                to="/proveedores"
                 class="inline-flex items-center gap-1 text-[11px] font-semibold transition-colors"
                 :class="esOscuro ? 'text-[#2ED5A0] hover:text-[#FFD700]' : 'text-[#008A59] hover:text-[#B45309]'"
               >
-                Ver pedidos <n-icon :component="ChevronForwardOutline" :size="12" />
+                Ver proveedores <n-icon :component="ChevronForwardOutline" :size="12" />
               </router-link>
             </div>
-            <div v-if="pagosHoy.length === 0" class="mt-3 text-xs transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Sin pagos registrados hoy</div>
-            <div v-else class="mt-3 flex flex-col gap-2">
+            <div class="mt-2 text-xs font-bold capitalize transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ labelFechaSel }}</div>
+
+            <div v-if="provsDelDia.length === 0" class="mt-3 text-xs transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Ningún proveedor pasa este día</div>
+            <div v-else class="mt-3 flex flex-col gap-1.5">
               <div
-                v-for="p in pagosHoy"
-                :key="p.id"
-                class="rounded-xl p-3 flex flex-col gap-2 transition-colors"
+                v-for="e in provsDelDia"
+                :key="e.id"
+                class="rounded-xl px-3 py-2 flex items-center justify-between gap-2 transition-colors"
                 :class="esOscuro ? 'bg-white/[0.06] border border-white/10' : 'bg-slate-50 border border-slate-200'"
               >
-                <div class="flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-lg bg-[#FFD700]/15 text-[#FFD700] grid place-items-center shrink-0">
-                      <n-icon :component="WalletOutline" />
-                    </div>
-                    <div class="min-w-0 leading-tight">
-                      <div class="text-sm font-bold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ p.empresa }}</div>
-                      <div class="text-[11px] truncate transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Vendedor: {{ p.vendedor }}</div>
-                    </div>
-                  </div>
-                  <n-tag :bordered="false" size="small" :type="p.saldo > 0 ? 'warning' : 'success'">
-                    {{ p.formaPago }}
-                  </n-tag>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-[11px] transition-colors" :class="esOscuro ? 'text-white/50' : 'text-slate-500'">Total del pedido</span>
-                  <span class="text-sm font-bold tabular-nums transition-colors" :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'">{{ formatMoney(p.total) }}</span>
-                </div>
-                <div
-                  v-if="p.saldo > 0"
-                  class="rounded-md bg-[#FFD700]/10 px-2.5 py-1.5 flex items-center justify-between text-[11px] transition-colors"
-                  :class="esOscuro ? 'text-[#FFD700]' : 'text-[#B45309]'"
-                >
-                  <span class="font-semibold">Abono parcial</span>
-                  <span class="font-bold tabular-nums">Saldo {{ formatMoney(p.saldo) }}</span>
-                </div>
+                <span class="text-sm font-semibold truncate transition-colors" :class="esOscuro ? 'text-[#F5F5DC]' : 'text-slate-800'">{{ e.nombre }}</span>
+                <n-tag :bordered="false" size="small" :type="e.entregaMismoDia ? 'success' : 'warning'">
+                  {{ e.entregaMismoDia ? 'Pedido y entrega' : 'Solo pedido' }}
+                </n-tag>
               </div>
             </div>
           </motion.div>
@@ -249,17 +229,16 @@ import {
   CalendarOutline,
   ChevronBackOutline,
   ChevronForwardOutline,
-  StorefrontOutline,
-  WalletOutline
+  StorefrontOutline
 } from '@vicons/ionicons5'
+import type { DiaSemana } from '@/domain/models'
 import { useTheme } from '@/composables/useTheme'
 import { useCatalog } from '@/composables/useCatalog'
-import { formatMoney, numeroDestacado } from '@/domain/utils'
-import { nombreDeEmpresa } from '@/services/pedidos'
+import { formatMoney } from '@/domain/utils'
 
 const { esOscuro } = useTheme()
 
-const { empresas, pedidos, vendedores, egresos } = useCatalog()
+const { empresas, pedidos, egresos } = useCatalog()
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -329,24 +308,24 @@ const egresosHoy = computed(() =>
 )
 const egresosHoyTotal = computed(() => egresosHoy.value.reduce((a, e) => a + e.monto, 0))
 
-const pagosHoy = computed(() =>
-  [...egresosHoy.value]
-    .sort((a, b) => (a.fecha > b.fecha ? 1 : -1))
-    .map((eg) => {
-      const p = pedidos.items.find((x) => x.id === eg.pedidoId)
-      const v = p ? vendedores.items.find((x) => x.id === p.vendedorId) : undefined
-      const total = p ? p.lineas.reduce((s, l) => s + l.cantidad * l.precioUnitario, 0) : 0
-      return {
-        id: eg.id,
-        numero: p ? numeroDestacado(p.numero) : '—',
-        empresa: p ? nombreDeEmpresa(empresas.items, p.empresaId) : '—',
-        vendedor: v ? v.nombre : '—',
-        monto: eg.monto,
-        total,
-        saldo: Math.max(0, total - eg.monto),
-        formaPago: eg.formaPago
-      }
-    })
+const selectedDate = computed(() => new Date(view.value.y, view.value.m, selectedDay.value))
+
+const labelFechaSel = computed(() =>
+  selectedDate.value.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
+)
+
+const DIAS_SEM = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'] as const
+const diaSel = computed<DiaSemana>(() => DIAS_SEM[selectedDate.value.getDay()] as DiaSemana)
+
+const provsDelDia = computed(() =>
+  empresas.items
+    .filter((e) => e.orderDays.includes(diaSel.value))
+    .map((e) => ({
+      id: e.id,
+      nombre: e.nombre,
+      entregaMismoDia: e.deliveryDays.includes(diaSel.value)
+    }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre))
 )
 
 const egresosDiaSel = computed(() =>
