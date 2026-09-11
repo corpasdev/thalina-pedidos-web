@@ -9,7 +9,7 @@
         :transition="{ duration: 0.25, ease: 'easeOut' }"
       >
         <header
-          class="flex items-center justify-end px-6 md:px-9 py-4 transition-colors"
+          class="flex items-center px-6 md:px-9 py-4 transition-colors"
           :class="esOscuro ? 'bg-slate-900/40' : 'bg-slate-50'"
         >
           <div class="hidden sm:flex items-center gap-2 shrink-0">
